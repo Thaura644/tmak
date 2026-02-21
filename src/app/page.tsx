@@ -30,10 +30,12 @@ export default async function LandingPage() {
           {/* Image Collage Side */}
           <div className="col-span-12 lg:col-span-7 relative">
             <div className="relative z-10 w-4/5 h-[400px] bg-gray-200 rounded-custom overflow-hidden rotate-2 shadow-2xl">
-              <img
+              <Image
                 alt="Mango Farmers"
                 className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJMsWrIWDWqll7AXnCtS6MPxBw1uuegJ01Y6lXIea5RXF5RxTV8icCgPF0DI7MeqUp7P3gvq_ZZHLbk9OyjiaWDDM99DLZsdXsxtlZg7XtwL6Bo6Ca3VW352YzrlL2FbFt8FKRwr_epSP-nBI85HlKgNDvh7aZhtcLu2ksZ0fMl5r_2WYg-hUGIs0r6L53fMWjCqHGZNWtysVpGmJrz4bgl2dxEGY4eE8kP9P-AwTPlWG06AmuggVgYp-_IvNR_AcJpXQuN-r09Xwj"
+                src="/hero.png"
+                width={800}
+                height={400}
               />
             </div>
             <div className="absolute -bottom-10 -right-5 z-20 w-1/2 h-64 bg-orange-100 rounded-custom overflow-hidden -rotate-3 border-8 border-white shadow-xl">
@@ -62,7 +64,7 @@ export default async function LandingPage() {
       <section className="py-24 bg-white relative overflow-hidden" id="membership">
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-16">
-            <h2 className="font-serif text-4xl mb-4 text-foreground">Membership Tiers</h2>
+            <h2 className="font-serif text-4xl mb-4 text-foreground">Membership</h2>
             <div className="w-24 h-1 bg-leaf"></div>
           </div>
           <div className="flex flex-wrap items-end gap-8">
