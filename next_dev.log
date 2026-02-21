@@ -1,0 +1,31 @@
+
+> tmp-app@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.2:3001
+- Environments: .env
+
+✓ Starting...
+⨯ Unable to acquire lock at /app/.next/dev/lock, is another instance of next dev running?
+  Suggestion: If you inten GET / 200 in 342ms (compile: 75ms, render: 267ms)
+ GET /api/auth/session 200 in 42ms (compile: 30ms, render: 12ms)
+ POST /api/auth/_log 200 in 19ms (compile: 8ms, render: 11ms)
+ GET /login 200 in 198ms (compile: 40ms, render: 157ms)
+ GET /api/auth/session 200 in 17ms (compile: 5ms, render: 12ms)
+ GET /api/auth/providers 200 in 17ms (compile: 6ms, render: 11ms)
+ GET /api/auth/csrf 200 in 13ms (compile: 4ms, render: 9ms)
+ POST /api/auth/callback/credentials 200 in 177ms (compile: 3ms, render: 174ms)
+ GET /api/auth/session 200 in 22ms (compile: 3ms, render: 19ms)
+ GET /admin 200 in 260ms (compile: 89ms, render: 172ms)
+ GET /admin/members 200 in 216ms (compile: 184ms, render: 32ms)
+ POST /admin/members 200 in 79ms (compile: 3ms, render: 76ms)
+ GET /admin/adverts 200 in 202ms (compile: 108ms, render: 95ms)
+ GET /api/auth/session 200 in 39ms (compile: 24ms, render: 15ms)
+ POST /admin/adverts 200 in 93ms (compile: 8ms, render: 85ms)
+ GET / 200 in 120ms (compile: 3ms, render: 116ms)
+ GET /api/auth/session 200 in 16ms (compile: 3ms, render: 12ms)
+ GET / 200 in 113ms (compile: 5ms, render: 108ms)
+ GET /api/auth/session 200 in 44ms (compile: 30ms, render: 14ms)

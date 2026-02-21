@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mango: #ff9900;
+  --color-leaf: #4ade80;
+  --color-canvas: #fafaf9;
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --radius-custom: 8px;
+}
+
+:root {
+  --background: #fafaf9;
+  --foreground: #2d2d2d;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.mango-blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+.brush-stroke {
+  position: relative;
+}
+
+.brush-stroke::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: #ff9900;
+  opacity: 0.3;
+  z-index: -1;
+  border-radius: 100% 10% 100% 10%;
+}
+
+.asymmetric-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
