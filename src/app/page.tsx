@@ -18,9 +18,12 @@ export default async function LandingPage() {
           <Link href="#membership" className="hover:text-mango transition-colors">Join the Circle</Link>
           <Link href="#marketplace" className="hover:text-mango transition-colors">The Market</Link>
         </div>
-        <button className="bg-mango text-white px-6 py-2 rounded-custom font-bold hover:shadow-lg transition-all transform hover:-translate-y-1">
+        <Link 
+          href="/login" 
+          className="bg-mango text-white px-6 py-2 rounded-custom font-bold hover:shadow-lg transition-all transform hover:-translate-y-1 inline-block"
+        >
           JOIN NOW
-        </button>
+        </Link>
       </nav>
       {/* END: Navigation */}
 
