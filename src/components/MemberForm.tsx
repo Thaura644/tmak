@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function MemberForm({ member, onSave }: { member?: any, onSave: (data: any) => Promise<void> }) {

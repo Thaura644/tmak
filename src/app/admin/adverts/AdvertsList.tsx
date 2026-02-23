@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -28,7 +29,7 @@ export function AdvertsList({ initialAdverts }: { initialAdverts: any[] }) {
     <div>
       <button 
         onClick={() => { setShowForm(!showForm); setEditingAdvert(null); }}
-        className="mb-6 bg-mango text-white px-4 py-2 rounded font-bold hover:bg-orange-600"
+        className="mb-6 bg-leaf text-white px-4 py-2 rounded font-bold hover:bg-green-600"
       >
         {showForm ? "Cancel" : "Add New Advert"}
       </button>

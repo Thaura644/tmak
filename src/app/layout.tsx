@@ -16,6 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tmak.co.ke"),
   title: {
     default: "The Mango Association of Kenya (T-MAK) | National Authority",
     template: "%s | T-MAK",

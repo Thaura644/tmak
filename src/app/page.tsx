@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = "force-dynamic"
 import React from 'react'
 import Link from 'next/link'
@@ -16,14 +17,14 @@ export default async function HomePage() {
     collection: 'organization_role',
     limit: 1,
   })
-  const orgRole = orgRoles[0]
+  const orgRole = orgRoles[0] as any
 
   // Fetch Value Chain Platform
   const { docs: vcPlatforms } = await payload.find({
     collection: 'value_chain_platform',
     limit: 1,
   })
-  const vcPlatform = vcPlatforms[0]
+  const vcPlatform = vcPlatforms[0] as any
 
   // Fetch Statistics for Data Snapshot
   const { docs: statsDocs } = await payload.find({
@@ -46,7 +47,7 @@ export default async function HomePage() {
     collection: 'partners',
     limit: 10,
   })
-  const partners = partnersDocs
+  const partners = partnersDocs as any[]
 
   const heroImage = typeof orgRole?.banner_image === 'object' && orgRole.banner_image !== null
     ? (orgRole.banner_image as Media).url
@@ -72,7 +73,7 @@ export default async function HomePage() {
               {orgRole?.title || "The Mango Association of Kenya (T-MAK)"}
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed font-light">
-              National coordinating authority, value chain platform, and market linkage enabler for Kenya's mango industry.
+              National coordinating authority, value chain platform, and market linkage enabler for Kenya&apos;s mango industry.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <Link href="/#value-chain" className="bg-tmak-accent text-tmak-green px-8 py-4 rounded font-bold text-lg text-center hover:scale-105 transition shadow-lg w-full sm:w-auto">
@@ -87,7 +88,7 @@ export default async function HomePage() {
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden">
                   <Link href="/members" className="block px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition border-b border-gray-50">All Members</Link>
-                  {categories.slice(0, 8).map(cat => (
+                  {categories.slice(0, 8).map((cat) => (
                     <Link key={cat.id} href={`/members?category=${cat.id}`} className="block px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition border-b border-gray-50 last:border-0">{cat.name}</Link>
                   ))}
                 </div>
@@ -112,7 +113,7 @@ export default async function HomePage() {
                 As the peak industry body, T-MAK works in collaboration with the Government of Kenya and international partners to ensure the sustainability, profitability, and global competitiveness of the mango sector.
               </p>
               <ul className="space-y-4">
-                {(orgRole?.strategic_functions as any[])?.map((item, i) => (
+                {(orgRole?.strategic_functions as any[])?.map((item: any, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-slate-700">
                     <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
                     <span className="leading-relaxed">{item.function}</span>

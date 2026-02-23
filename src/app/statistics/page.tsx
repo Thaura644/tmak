@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = 'force-dynamic'
 
 import React from 'react'
@@ -45,7 +46,7 @@ export default async function StatisticsPage({
       <header className="bg-mangogreen text-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">Market Intelligence & Data</h1>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">Real-time insights into Kenya's mango value chain, production volumes, and export trends.</p>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto">Real-time insights into Kenya&apos;s mango value chain, production volumes, and export trends.</p>
         </div>
       </header>
 

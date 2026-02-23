@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = "force-dynamic"
 import React from 'react'
 import { getPayload } from 'payload'
@@ -172,8 +173,8 @@ export default async function MembersPage({
                       )}
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                        (member.category as any).name === 'Producer' ? 'bg-green-100 text-green-800' :
-                        (member.category as any).name === 'Trader' || (member.category as any).name === 'Exporter' ? 'bg-blue-100 text-blue-800' :
+                        (member.category as { name: string }).name === 'Producer' ? 'bg-green-100 text-green-800' :
+                        (member.category as { name: string }).name === 'Trader' || (member.category as { name: string }).name === 'Exporter' ? 'bg-blue-100 text-blue-800' :
                         'bg-orange-100 text-orange-800'
                     }`}>
                       {typeof member.category === 'object' ? member.category.name : 'Member'}
