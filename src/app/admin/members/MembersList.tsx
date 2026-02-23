@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { MemberForm } from "@/components/MemberForm";
 import { createMember, updateMember, deleteMember } from "../actions";
 
@@ -44,7 +46,7 @@ export function MembersList({ initialMembers }: { initialMembers: any[] }) {
         {initialMembers.map(member => (
           <div key={member.id} className="bg-white p-4 rounded shadow-sm flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <img src={member.imageUrl} className="w-12 h-12 rounded-full object-cover" alt="" />
+              <Image src={member.imageUrl} className="w-12 h-12 rounded-full object-cover" alt="" width={48} height={48} />
               <div>
                 <p className="font-bold">{member.name}</p>
                 <p className="text-sm text-gray-500">{member.role} • {member.location}</p>

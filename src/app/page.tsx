@@ -1,167 +1,275 @@
-import Image from "next/image";
-import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const dynamic = "force-dynamic"
+import React from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { getPayload } from 'payload'
+import config from '@/payload.config'
+import ProduceMarquee from '@/components/ProduceMarquee'
+import * as Icons from 'lucide-react'
+import { Statistic, MemberCategory, Media } from '@/types/payload'
 
-export default async function LandingPage() {
-  const adverts = await prisma.advert.findMany();
+export default async function HomePage() {
+  const payload = await getPayload({ config })
+
+  // Fetch Hero/Organization info
+  const { docs: orgRoles } = await payload.find({
+    collection: 'organization_role',
+    limit: 1,
+  })
+  const orgRole = orgRoles[0] as any
+
+  // Fetch Value Chain Platform
+  const { docs: vcPlatforms } = await payload.find({
+    collection: 'value_chain_platform',
+    limit: 1,
+  })
+  const vcPlatform = vcPlatforms[0] as any
+
+  // Fetch Statistics for Data Snapshot
+  const { docs: statsDocs } = await payload.find({
+    collection: 'statistics',
+    where: {
+        year: { equals: 2023 }
+    },
+    limit: 10,
+  })
+  const stats = statsDocs as unknown as Statistic[]
+
+  // Fetch Member Categories
+  const { docs: categoriesDocs } = await payload.find({
+    collection: 'member_categories',
+  })
+  const categories = categoriesDocs as unknown as MemberCategory[]
+
+  // Fetch Partners
+  const { docs: partnersDocs } = await payload.find({
+    collection: 'partners',
+    limit: 10,
+  })
+  const partners = partnersDocs as any[]
+
+  const heroImage = typeof orgRole?.banner_image === 'object' && orgRole.banner_image !== null
+    ? (orgRole.banner_image as Media).url
+    : "https://lh3.googleusercontent.com/aida-public/AB6AXuCINAOCgbzbCG5B1PyrJLQcbYwzAXw90_4mQoy8J1LwFeDc1jBfRDL8pXIZvAvao8kVmTaKe23ohQi5rr1kzFMj4nn8L5h5iafa2V_MfdXnvVgWltFkjGuKx8Vr7dPn1d-PD4O3ESheNM470_5QDVpw5EtWd9_zM3-b39M0g3eRxkC3rT13jaa0V-EMdy-zUwY-vqt1DMRYfUwUDcuff4b-6qCFLYTGqdL11Oni0Wgp29qOyPB2Q4r_7JgDOSGEsl-mOCCWJ0nXQPZc"
 
   return (
-    <div className="font-sans">
-      {/* BEGIN: Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-orange-100 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-mango rounded-full mango-blob"></div>
-          <span className="font-serif font-bold text-xl tracking-tight text-foreground">The Mango Association of Kenya (T-MAK)</span>
+    <main>
+      {/* Hero Section */}
+      <section className="relative h-[750px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={heroImage}
+            alt="The Mango Association of Kenya"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
-        <div className="hidden md:flex gap-8 text-sm font-semibold uppercase tracking-widest text-gray-600">
-          <Link href="#about" className="hover:text-mango transition-colors">Our Roots</Link>
-          <Link href="#membership" className="hover:text-mango transition-colors">Join the Circle</Link>
-          <Link href="#marketplace" className="hover:text-mango transition-colors">The Market</Link>
-        </div>
-        {/* <Link 
-          href="/login" 
-          className="bg-mango text-white px-6 py-2 rounded-custom font-bold hover:shadow-lg transition-all transform hover:-translate-y-1 inline-block"
-        >
-          JOIN NOW
-        </Link> */}
-      </nav>
-      {/* END: Navigation */}
-
-      {/* BEGIN: Hero Section */}
-      <main className="pt-32 pb-20 px-6 max-w-7xl mx-auto" id="about">
-        <div className="asymmetric-grid items-center">
-          {/* Image Collage Side */}
-          <div className="col-span-12 lg:col-span-7 relative">
-            <div className="relative z-10 w-4/5 h-[400px] bg-gray-200 rounded-custom overflow-hidden rotate-2 shadow-2xl">
-              <Image
-                alt="Mango Farmers"
-                className="w-full h-full object-cover"
-                src="/hero.png"
-                width={800}
-                height={400}
-              />
-            </div>
-            <div className="absolute -bottom-10 -right-5 z-20 w-1/2 h-64 bg-orange-100 rounded-custom overflow-hidden -rotate-3 border-8 border-white shadow-xl">
-              <img
-                alt="Fresh Harvest"
-                className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzb02rD8cd58DBpFh_8iD_6P5cghTNveTtEz5j1Lg2DRZFylYxxsW8gfiJR1WhMOLwiaXoPeVK8IH2Vq8Ez9SLY9GlD_uks5RWUKQe4vU6w3YXQBRCZXMfGn--dljp_Sdg2wgUa885TM9B_Q57u8kjzrTd3Or96nVdYs_CrGTFFSH47NevkHqEMLddalGYQLmikKNVXeiz1pFge9iCq8MNIuDhXDpvSqiBvuvP8Qu8wrS2-ndmjbScYwJDKB501maBWA0C4gXjrcLB"
-              />
-            </div>
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-leaf opacity-20 mango-blob animate-pulse"></div>
-          </div>
-          {/* Text Side */}
-          <div className="col-span-12 lg:col-span-5 mt-20 lg:mt-0 lg:pl-10">
-            <h1 className="font-serif text-6xl md:text-7xl leading-tight mb-6 text-foreground">
-              Nurturing <span className="italic text-mango">Kenya&apos;s</span> Golden <span className="brush-stroke">Legacy.</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
+              {orgRole?.title || "The Mango Association of Kenya (T-MAK)"}
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-md">
-              The Mango Association of Kenya (T-MAK) is a collaborative movement uniting the hands that plant, the minds that trade, and the hearts that savor. We are the pulse of the national mango value chain.
+            <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed font-light">
+              National coordinating authority, value chain platform, and market linkage enabler for Kenya&apos;s mango industry.
             </p>
-          </div>
-        </div>
-      </main>
-      {/* END: Hero Section */}
-
-      {/* BEGIN: Membership Cards */}
-      <section className="py-24 bg-white relative overflow-hidden" id="membership">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-16">
-            <h2 className="font-serif text-4xl mb-4 text-foreground">Membership</h2>
-            <div className="w-24 h-1 bg-leaf"></div>
-          </div>
-          <div className="flex flex-wrap items-end gap-8">
-            {/* Producer Card */}
-            <div className="flex-1 min-w-[300px] p-10 bg-orange-50 rounded-[40px] border-2 border-orange-100 transform hover:scale-105 transition-transform duration-500">
-              <span className="text-xs font-bold tracking-widest uppercase text-mango block mb-4">Foundation</span>
-              <h3 className="font-serif text-3xl mb-4 text-foreground">Producers</h3>
-              <p className="text-gray-600 mb-8">Access to sustainable farming techniques, global export standards, and collective bargaining power.</p>
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-mango shadow-sm">→</div>
-            </div>
-            {/* Trader Card */}
-            <div className="flex-1 min-w-[300px] p-10 bg-leaf/10 rounded-[80px_20px_80px_20px] border-2 border-leaf/20 h-[450px] flex flex-col justify-center">
-              <span className="text-xs font-bold tracking-widest uppercase text-green-600 block mb-4">Growth</span>
-              <h3 className="font-serif text-5xl mb-6 italic text-foreground">Traders</h3>
-              <p className="text-gray-700 text-lg mb-8">Connecting local excellence with global demand through optimized logistics and digital market access.</p>
-              <button className="border-b-2 border-green-600 font-bold self-start py-2 text-foreground">EXPLORE NETWORK</button>
-            </div>
-            {/* Consumer Card */}
-            <div className="flex-1 min-w-[300px] p-10 bg-zinc-50 rounded-custom border-2 border-dashed border-zinc-200">
-              <span className="text-xs font-bold tracking-widest uppercase text-zinc-400 block mb-4">Community</span>
-              <h3 className="font-serif text-3xl mb-4 text-foreground">Consumers</h3>
-              <p className="text-gray-500 mb-8">Enjoy traceable, high-quality mangoes while supporting fair wages and sustainable Kenyan agriculture.</p>
-              <div className="w-full h-1 bg-zinc-200"></div>
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <Link href="/#value-chain" className="bg-tmak-accent text-tmak-green px-8 py-4 rounded font-bold text-lg text-center hover:scale-105 transition shadow-lg w-full sm:w-auto">
+                Explore the Value Chain
+              </Link>
+              <Link href="/cms" className="bg-white/10 backdrop-blur-md text-white border-2 border-white/30 px-8 py-4 rounded font-bold text-lg text-center hover:bg-white hover:text-tmak-green transition w-full sm:w-auto">
+                Become a Member
+              </Link>
+              <div className="relative group w-full sm:w-auto">
+                <button className="bg-mangogreen text-white px-8 py-4 rounded font-bold text-lg text-center flex items-center justify-center gap-2 hover:bg-mangogreen-light transition w-full">
+                  Member Directory <Icons.ChevronDown className="w-5 h-5" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden">
+                  <Link href="/members" className="block px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition border-b border-gray-50">All Members</Link>
+                  {categories.slice(0, 8).map((cat) => (
+                    <Link key={cat.id} href={`/members?category=${cat.id}`} className="block px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition border-b border-gray-50 last:border-0">{cat.name}</Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-      {/* END: Membership Cards */}
 
-      {/* BEGIN: Marketplace */}
-      <section className="py-24 px-6 max-w-7xl mx-auto" id="marketplace">
-        <div className="flex flex-col md:flex-row gap-12 items-start">
-          <div className="md:w-1/3 sticky top-32">
-            <h2 className="font-serif text-5xl leading-tight mb-6 text-foreground">Market <br /><span className="text-leaf">Exchange</span></h2>
-            <p className="text-gray-500">Curated commercial opportunities and essential services for our ecosystem members.</p>
-            <div className="mt-8 flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-mango"></div>
-              <div className="w-3 h-3 rounded-full bg-leaf"></div>
-              <div className="w-3 h-3 rounded-full bg-orange-200"></div>
+      {/* Produce Marquee */}
+      <ProduceMarquee />
+
+      {/* Strategic Functions */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-tmak-green mb-6 border-l-4 border-tmak-accent pl-6 uppercase tracking-wider">
+                Strategic Functions of T-MAK
+              </h2>
+              <p className="text-lg text-slate-600 leading-relaxed mb-8">
+                As the peak industry body, T-MAK works in collaboration with the Government of Kenya and international partners to ensure the sustainability, profitability, and global competitiveness of the mango sector.
+              </p>
+              <ul className="space-y-4">
+                {(orgRole?.strategic_functions as any[])?.map((item: any, i: number) => (
+                  <li key={i} className="flex items-start gap-3 text-slate-700">
+                    <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
+                    <span className="leading-relaxed">{item.function}</span>
+                  </li>
+                )) || (
+                    <>
+                        <li className="flex items-start gap-3 text-slate-700">
+                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
+                            <span><strong>Policy Advocacy:</strong> Shaping the regulatory environment for favorable trade.</span>
+                        </li>
+                        <li className="flex items-start gap-3 text-slate-700">
+                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
+                            <span><strong>Quality Assurance:</strong> Enforcing standards for domestic and export markets.</span>
+                        </li>
+                    </>
+                )}
+              </ul>
+            </div>
+            <div className="bg-white p-8 rounded-xl shadow-xl border border-gray-100">
+              <div className="grid grid-cols-2 gap-6">
+                {[
+                  { label: 'Registered Farmers', value: '45k+' },
+                  { label: 'Active Counties', value: '15' },
+                  { label: 'Export Partners', value: '120+' },
+                  { label: 'Market Stability', value: '85%' }
+                ].map((stat, i) => (
+                  <div key={i} className="text-center p-6 bg-slate-50 rounded-lg group hover:bg-mangogreen transition-colors">
+                    <div className="text-4xl font-bold text-tmak-green mb-2 group-hover:text-mangoyellow">{stat.value}</div>
+                    <div className="text-xs text-slate-500 uppercase font-semibold tracking-wider group-hover:text-white/70">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {adverts.map((ad) => (
-              <div 
-                key={ad.id} 
-                className={`p-8 rounded-custom shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between ${
-                  ad.type === 'LOGISTICS' ? 'bg-zinc-900 text-white' : 'bg-white border-l-8 border-mango'
-                }`}
-              >
-                <div>
-                  <span className={`${
-                    ad.type === 'LOGISTICS' ? 'bg-white/10 text-white/60' : 'bg-orange-100 text-mango'
-                  } px-3 py-1 text-[10px] font-bold rounded mb-4 inline-block`}>
-                    {ad.type}
-                  </span>
-                  <h5 className="font-bold text-xl mb-2">{ad.title}</h5>
-                  <p className={`text-sm mb-6 ${ad.type === 'LOGISTICS' ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {ad.description}
-                  </p>
-                </div>
-                {ad.memberDiscount ? (
-                  <Link href={ad.link} className="text-mango font-bold text-sm underline">
-                    {ad.memberDiscount}
+        </div>
+      </section>
+
+      {/* Value Chain Platform */}
+      <section id="value-chain" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">The Value Chain Platform</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">Connecting every node of the ecosystem to maximize efficiency and value creation from farm to fork.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {vcPlatform?.nodes?.map((node: any, i: number) => {
+              const IconComponent = (Icons as any)[node.icon || 'Package'] || Icons.Package
+              return (
+                <div key={i} className="group p-8 border border-gray-100 rounded-2xl hover:border-tmak-accent transition duration-300 bg-gray-50 hover:bg-white hover:shadow-xl">
+                  <div className="w-14 h-14 bg-tmak-green text-white rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <IconComponent className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">{node.title}</h3>
+                  <p className="text-slate-600 mb-6 leading-relaxed">{node.description}</p>
+                  <Link href={node.link || "#"} className="text-tmak-green font-semibold inline-flex items-center hover:gap-2 transition-all">
+                    Learn More <span className="ml-1">→</span>
                   </Link>
-                ) : (
-                  <button className={`${
-                    ad.type === 'LOGISTICS' ? 'bg-leaf text-black' : 'bg-mango text-white'
-                  } px-4 py-2 text-xs font-bold rounded self-start`}>
-                    GET DETAILS
-                  </button>
-                )}
+                </div>
+              )
+            })}
+            {(!vcPlatform || !vcPlatform.nodes || vcPlatform.nodes.length === 0) && (
+              <div className="col-span-full py-10 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                Value chain nodes not defined in CMS.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Membership Categories */}
+      <section id="membership" className="py-24 bg-tmak-green text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Join Our Ecosystem</h2>
+            <p className="text-white/70 max-w-2xl mx-auto">Standardized categories designed to foster professional growth across the industry.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {categories.slice(0, 3).map((cat, i) => (
+              <div key={cat.id} className={`p-10 rounded-xl text-center border transition ${i === 1 ? 'bg-white/10 border-white/20 scale-105 shadow-2xl' : 'bg-white/5 border-white/10'}`}>
+                <h3 className="text-2xl font-bold mb-4 text-tmak-accent">{cat.name}</h3>
+                <p className="text-white/80 mb-6">
+                  {i === 0 ? 'Individual farmers and Co-operatives looking to certify their orchards.' : i === 1 ? 'Logistics providers and export houses seeking vetted suppliers.' : 'Retailers and food manufacturers sourcing high-quality mangoes.'}
+                </p>
+                <Link href="/cms" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
+                  Apply Now
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
-      {/* END: Marketplace */}
 
-      {/* BEGIN: Footer */}
-      <footer className="py-12 px-6 border-t border-zinc-100">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-6 h-6 bg-mango rounded-full mango-blob"></div>
-            <p className="text-sm text-gray-500 font-medium tracking-wide">
-              © 2026 The Mango Association of Kenya | A National Mango Value Chain Initiative.
-            </p>
+      {/* Industry Data Snapshot */}
+      <section className="py-24 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Industry Data Snapshot</h2>
+            <p className="text-slate-500 font-medium">Mango Production by Major County (Annual Tonnage - 2023)</p>
           </div>
-          <div className="flex gap-8 text-xs font-bold uppercase tracking-widest text-zinc-400">
-            <Link href="#" className="hover:text-mango">Privacy</Link>
-            <Link href="#" className="hover:text-mango">Terms</Link>
-            <Link href="#" className="hover:text-mango">Contact</Link>
+          <div className="bg-slate-50 p-10 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-mangoyellow/5 rounded-full -mr-16 -mt-16"></div>
+            <div className="space-y-6 relative z-10">
+              {stats.filter(s => s.category === 'production').slice(0, 5).map((s, i) => (
+                <div key={s.id} className="space-y-2">
+                  <div className="flex justify-between text-sm font-bold text-slate-700">
+                    <span>{s.label}</span>
+                    <span>{s.value.toLocaleString()} Tons</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4 shadow-inner">
+                    <div
+                      className={`h-4 rounded-full transition-all duration-1000 ${i === 0 ? 'bg-tmak-green' : i === 1 ? 'bg-green-600' : i === 2 ? 'bg-green-500' : i === 3 ? 'bg-green-400' : 'bg-green-300'}`}
+                      style={{ width: `${Math.min(100, (s.value / 200000) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+              {stats.filter(s => s.category === 'production').length === 0 && (
+                <div className="text-center py-10 text-gray-400 italic">No production data available for 2023.</div>
+              )}
+            </div>
+            <div className="mt-8 pt-6 border-t border-gray-200 text-[10px] text-slate-400 italic uppercase tracking-widest">
+              *Source: T-MAK Annual Sector Report 2023. Figures rounded to nearest thousand.
+            </div>
           </div>
         </div>
-      </footer>
-    </div>
-  );
+      </section>
+
+      {/* Strategic Partners */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-serif font-bold mb-12 uppercase tracking-widest text-slate-400 text-sm">Our Strategic Partners</h2>
+          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
+            {partners.map((partner) => {
+                 const logoUrl = typeof partner.logo === 'object' && partner.logo !== null ? (partner.logo as Media).url : null
+                 if (logoUrl) {
+                     return (
+                        <div key={partner.id} className="relative w-40 h-20">
+                            <Image src={logoUrl} alt={partner.name} fill className="object-contain" />
+                        </div>
+                     )
+                 }
+                 return (
+                    <div key={partner.id} className="text-2xl font-bold text-gray-400 uppercase">{partner.name}</div>
+                 )
+            })}
+            {partners.length === 0 && (
+                <>
+                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">MINISTRY OF AGRICULTURE</div>
+                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KALRO</div>
+                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">USAID</div>
+                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KEPHIS</div>
+                </>
+            )}
+          </div>
+        </div>
+      </section>
+    </main>
+  )
 }
