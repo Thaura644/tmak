@@ -1,47 +1,87 @@
 @import "tailwindcss";
 
 @theme {
-  --color-mango: #ff9900;
-  --color-leaf: #4ade80;
-  --color-canvas: #fafaf9;
-  --font-sans: "Inter", sans-serif;
-  --font-serif: "Playfair Display", serif;
-  --radius-custom: 8px;
+  --color-tmak-green: #1a472a;
+  --color-tmak-accent: #fbbf24;
+  --color-mangogreen: #1B4332;
+  --color-mangogreen-light: #2D6A4F;
+  --color-mangogreen-dark: #081C15;
+  --color-mangoyellow: #FFB703;
+  --color-mangoyellow-accent: #FB8500;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
 }
 
 :root {
-  --background: #fafaf9;
-  --foreground: #2d2d2d;
+  --background: #ffffff;
+  --foreground: #0f172a; /* slate-900 */
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
 }
 
-.mango-blob {
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.brush-stroke {
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: scroll 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.marquee-container {
+  overflow: hidden;
   position: relative;
 }
 
-.brush-stroke::after {
-  content: '';
+.marquee-container::before,
+.marquee-container::after {
+  content: "";
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 8px;
-  background: #ff9900;
-  opacity: 0.3;
-  z-index: -1;
-  border-radius: 100% 10% 100% 10%;
+  top: 0;
+  width: 150px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.asymmetric-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
+.marquee-container::before {
+  left: 0;
+  background: linear-gradient(to right, white, transparent);
+}
+
+.marquee-container::after {
+  right: 0;
+  background: linear-gradient(to left, white, transparent);
+}
+
+/* Custom scrollbar for institutional feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #1B4332;
+  border-radius: 4px;
+}
+
+.member-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-bar {
+  transition: height 1s ease-out;
 }
