@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,7 +26,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-canvas">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleSubmit} className="p-8 bg-white rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-serif font-bold mb-6 text-center">Admin Login</h1>
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
@@ -35,7 +35,7 @@ export default function LoginPage() {
           <input
             type="text"
             name="username"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -46,7 +46,7 @@ export default function LoginPage() {
           <input
             type="password"
             name="password"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
