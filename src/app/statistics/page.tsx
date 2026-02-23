@@ -7,7 +7,7 @@ import config from '@/payload.config'
 import { StatisticsCharts } from '@/components/StatisticsCharts'
 import { Statistic } from '@/types/payload'
 import Link from 'next/link'
-import * as Icons from 'lucide-react'
+import { Calendar } from 'lucide-react'
 
 export default async function StatisticsPage({
   searchParams,
@@ -15,34 +15,41 @@ export default async function StatisticsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
-  const payload = await getPayload({ config })
 
   const year = typeof params.year === 'string' ? parseInt(params.year) : 2023
 
-  const where: any = {}
-  if (year) {
-    where.year = {
-      equals: year,
+  let stats: Statistic[] = []
+  let availableYears: number[] = []
+
+  try {
+    const payload = await getPayload({ config })
+
+    const where: any = {}
+    if (year) {
+        where.year = {
+          equals: year,
+        }
     }
+
+    const statsRes = await payload.find({
+        collection: 'statistics',
+        where,
+        limit: 100,
+    })
+    stats = statsRes.docs as unknown as Statistic[]
+
+    const allStatsRes = await payload.find({
+        collection: 'statistics',
+        limit: 1000,
+    })
+    const allStats = allStatsRes.docs as unknown as Statistic[]
+    availableYears = Array.from(new Set(allStats.map(s => s.year))).sort((a, b) => b - a)
+  } catch (error) {
+    console.error('Failed to fetch statistics data:', error)
   }
 
-  const { docs: statsDocs } = await payload.find({
-    collection: 'statistics',
-    where,
-    limit: 100,
-  })
-  const stats = statsDocs as unknown as Statistic[]
-
-  // Get available years for filter
-  const allStatsRes = await payload.find({
-    collection: 'statistics',
-    limit: 1000,
-  })
-  const allStats = allStatsRes.docs as unknown as Statistic[]
-  const availableYears = Array.from(new Set(allStats.map(s => s.year))).sort((a, b) => b - a)
-
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20 font-sans">
       <header className="bg-mangogreen text-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">Market Intelligence & Data</h1>
@@ -54,7 +61,7 @@ export default async function StatisticsPage({
         <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-wrap items-center justify-between gap-6 mb-12">
             <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-mangoyellow/20 rounded-full flex items-center justify-center text-mangoyellow-accent">
-                    <Icons.Calendar className="w-5 h-5" />
+                    <Calendar className="w-5 h-5" />
                 </div>
                 <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reporting Year</p>

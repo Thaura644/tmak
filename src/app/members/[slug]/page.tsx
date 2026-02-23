@@ -6,36 +6,43 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { Member, Media, MemberCategory } from '@/types/payload'
+import { MapPin } from 'lucide-react'
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const payload = await getPayload({ config })
+  try {
+    const { slug } = await params
+    const payload = await getPayload({ config })
 
-  const { docs } = await payload.find({
-    collection: 'members',
-    where: {
-      slug: {
-        equals: slug,
+    const { docs } = await payload.find({
+      collection: 'members',
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  })
+    })
 
-  if (!docs || docs.length === 0) return {}
+    if (!docs || docs.length === 0) return {}
 
-  const member = docs[0] as unknown as Member
+    const member = docs[0] as unknown as Member
 
-  return {
-    title: member.organization_name,
-    description: member.description?.substring(0, 160),
-    openGraph: {
-      title: `${member.organization_name} | T-MAK Member`,
+    return {
+      title: member.organization_name,
       description: member.description?.substring(0, 160),
-      images: typeof member.logo === 'object' && member.logo !== null ? [(member.logo as Media).url] : [],
-    },
+      openGraph: {
+        title: `${member.organization_name} | T-MAK Member`,
+        description: member.description?.substring(0, 160),
+        images: typeof member.logo === 'object' && member.logo !== null ? [(member.logo as Media).url] : [],
+      },
+    }
+  } catch (_e) {
+    return {
+        title: 'Member Profile | T-MAK'
+    }
   }
 }
 
@@ -45,25 +52,33 @@ export default async function MemberProfilePage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const payload = await getPayload({ config })
+  let member: Member | null = null
 
-  const { docs } = await payload.find({
-    collection: 'members',
-    where: {
-      slug: {
-        equals: slug,
+  try {
+    const payload = await getPayload({ config })
+
+    const { docs } = await payload.find({
+      collection: 'members',
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  })
+    })
 
-  if (!docs || docs.length === 0) {
+    if (docs && docs.length > 0) {
+        member = docs[0] as unknown as Member
+    }
+  } catch (error) {
+    console.error('Failed to fetch member profile:', error)
+  }
+
+  if (!member) {
     notFound()
   }
 
-  const member = docs[0] as unknown as Member
-
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10 font-sans">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="bg-mangogreen h-32 w-full"></div>
         <div className="px-8 pb-8">
@@ -124,14 +139,16 @@ export default async function MemberProfilePage({
             </div>
 
             <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 h-fit">
-              <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-slate-400 text-xs">Contact Information</h3>
+              <h3 className="text-lg font-bold mb-6 uppercase tracking-wider text-slate-400 text-[10px]">Contact Information</h3>
               <div className="space-y-6 text-sm">
                 <div>
                   <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1">Contact Person</p>
                   <p className="text-slate-900 font-medium">{member.contact_person}</p>
                 </div>
                 <div>
-                  <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1">County</p>
+                  <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1 font-bold flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> County
+                  </p>
                   <p className="text-slate-900 font-medium">{member.county}</p>
                 </div>
                 {member.phone && (
@@ -143,17 +160,17 @@ export default async function MemberProfilePage({
                 {member.email && (
                   <div>
                     <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1">Email</p>
-                    <a href={`mailto:${member.email}`} className="text-mangogreen hover:text-mangoyellow-accent transition font-medium underline decoration-mangoyellow/30">{member.email}</a>
+                    <a href={`mailto:${member.email}`} className="text-mangogreen hover:text-mangoyellow-accent transition font-bold underline decoration-mangoyellow/30">{member.email}</a>
                   </div>
                 )}
                 {member.website && (
                   <div>
                     <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1">Website</p>
-                    <a href={member.website} target="_blank" rel="noopener noreferrer" className="text-mangogreen hover:text-mangoyellow-accent transition font-medium break-all underline decoration-mangoyellow/30">{member.website}</a>
+                    <a href={member.website} target="_blank" rel="noopener noreferrer" className="text-mangogreen hover:text-mangoyellow-accent transition font-bold break-all underline decoration-mangoyellow/30">{member.website}</a>
                   </div>
                 )}
                 <div>
-                  <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1">Member Since</p>
+                  <p className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-1 font-bold">Member Since</p>
                   <p className="text-slate-900 font-medium">{member.verified_since || member.year_joined || '2023'}</p>
                 </div>
               </div>

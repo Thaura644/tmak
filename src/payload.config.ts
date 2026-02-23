@@ -54,40 +54,41 @@ export default buildConfig({
   },
   db: sqliteAdapter({
     client: {
-      url: 'file:./payload.db',
+      url: process.env.DATABASE_URI || 'file:./payload.db',
     },
   }),
   onInit: async (payload) => {
-    if (process.env.NODE_ENV === 'production' && process.env.PAYLOAD_SEED !== 'true') return
+    // Only seed if requested or if we are not in production build phase
+    if (process.env.PAYLOAD_SEED !== 'true') return
 
     try {
         const categories = [
-        'Producer',
-        'Trader',
-        'Consumer',
-        'Researcher',
-        'Exporter',
-        'Processor',
-        'Input Supplier',
-        'Logistics Provider',
-        'Financial Service Provider',
+            'Producer',
+            'Trader',
+            'Consumer',
+            'Researcher',
+            'Exporter',
+            'Processor',
+            'Input Supplier',
+            'Logistics Provider',
+            'Financial Service Provider',
         ]
 
         for (const category of categories) {
-        const existing = await payload.find({
-            collection: 'member_categories',
-            where: { name: { equals: category } },
-        })
-
-        if (existing.docs.length === 0) {
-            await payload.create({
-            collection: 'member_categories',
-            data: { name: category },
+            const existing = await payload.find({
+                collection: 'member_categories',
+                where: { name: { equals: category } },
             })
-        }
+
+            if (existing.docs.length === 0) {
+                await payload.create({
+                    collection: 'member_categories',
+                    data: { name: category },
+                })
+            }
         }
     } catch (e) {
-        console.error('Seed failed during onInit, this is expected if DB is not initialized yet:', e)
+        console.warn('Payload onInit seeding failed. This is expected if tables are not yet created:', e)
     }
   },
 })

@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MemberCategory } from '@/types/payload'
-import * as Icons from 'lucide-react'
+import { Filter, Search, RotateCcw } from 'lucide-react'
 
 export function MembersFilter({ categories }: { categories: MemberCategory[] }) {
   const router = useRouter()
@@ -41,15 +41,14 @@ export function MembersFilter({ categories }: { categories: MemberCategory[] }) 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
       <h3 className="font-bold text-mangogreen mb-6 flex items-center">
-        <Icons.Filter className="w-5 h-5 mr-2" />
+        <Filter className="w-5 h-5 mr-2" />
         Directory Filters
       </h3>
       <div className="space-y-8">
-        {/* Search */}
         <div>
           <label className="block text-[10px] font-bold uppercase text-slate-400 mb-3 tracking-widest">Search Members</label>
           <div className="relative">
-            <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
             <input
               type="text"
               placeholder="Organization name..."
@@ -60,7 +59,6 @@ export function MembersFilter({ categories }: { categories: MemberCategory[] }) 
           </div>
         </div>
 
-        {/* Category */}
         <div>
           <label className="block text-[10px] font-bold uppercase text-slate-400 mb-3 tracking-widest">Member Category</label>
           <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
@@ -78,7 +76,6 @@ export function MembersFilter({ categories }: { categories: MemberCategory[] }) 
           </div>
         </div>
 
-        {/* County Selection */}
         <div>
           <label className="block text-[10px] font-bold uppercase text-slate-400 mb-3 tracking-widest">County</label>
           <select
@@ -98,7 +95,7 @@ export function MembersFilter({ categories }: { categories: MemberCategory[] }) 
                 onClick={resetFilters}
                 className="w-full text-slate-400 text-xs font-semibold hover:text-red-500 transition-colors flex items-center justify-center gap-2"
             >
-                <Icons.RotateCcw className="w-3 h-3" />
+                <RotateCcw className="w-3 h-3" />
                 Reset All Filters
             </button>
         </div>

@@ -13,13 +13,11 @@ import {
   PieChart,
   Pie,
   Cell,
-
-
   AreaChart,
   Area,
 } from 'recharts'
 import { Statistic } from '@/types/payload'
-import * as Icons from 'lucide-react'
+import { BarChart3, TrendingUp, Globe, Users, Info, PieChart as PieIcon, ArrowUpRight } from 'lucide-react'
 
 const COLORS = ['#1B4332', '#2D6A4F', '#40916C', '#52B788', '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC']
 
@@ -27,7 +25,7 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-20 rounded-2xl shadow-sm border border-slate-200 text-center text-slate-400">
-        <Icons.BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-10" />
+        <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-10" />
         <p className="text-lg font-medium">No statistical data found for the selected period.</p>
         <p className="text-sm">Please try a different filter or check back later.</p>
       </div>
@@ -40,11 +38,10 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
 
   return (
     <div className="space-y-12">
-      {/* Top Cards for Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-6">
             <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
-                <Icons.TrendingUp className="w-6 h-6" />
+                <TrendingUp className="w-6 h-6" />
             </div>
             <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Production</p>
@@ -53,7 +50,7 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-6">
             <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-                <Icons.Globe className="w-6 h-6" />
+                <Globe className="w-6 h-6" />
             </div>
             <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Export Value</p>
@@ -62,7 +59,7 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-6">
             <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
-                <Icons.Users className="w-6 h-6" />
+                <Users className="w-6 h-6" />
             </div>
             <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Members</p>
@@ -72,12 +69,11 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Production Bar Chart */}
         {productionData.length > 0 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-lg font-bold text-slate-800">Production by County</h2>
-                    <Icons.Info className="w-4 h-4 text-slate-300 cursor-help" />
+                    <Info className="w-4 h-4 text-slate-300 cursor-help" />
                 </div>
                 <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -100,12 +96,11 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
             </div>
         )}
 
-        {/* Export Market Share */}
         {exportData.length > 0 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-lg font-bold text-slate-800">Export Market Distribution</h2>
-                    <Icons.PieChart className="w-4 h-4 text-slate-300" />
+                    <PieIcon className="w-4 h-4 text-slate-300" />
                 </div>
                 <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -134,13 +129,12 @@ export function StatisticsCharts({ data }: { data: Statistic[] }) {
         )}
       </div>
 
-      {/* Membership Growth Trend */}
       {membershipData.length > 0 && (
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-8">
                 <h2 className="text-lg font-bold text-slate-800">Industry Growth Trend</h2>
                 <div className="flex items-center gap-2 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
-                    <Icons.ArrowUpRight className="w-3 h-3" />
+                    <ArrowUpRight className="w-3 h-3" />
                     +12% YoY
                 </div>
             </div>

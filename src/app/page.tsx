@@ -6,48 +6,79 @@ import Image from 'next/image'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import ProduceMarquee from '@/components/ProduceMarquee'
-import * as Icons from 'lucide-react'
+import {
+    ChevronDown,
+    Sprout,
+    Factory,
+    Globe,
+    Package,
+    CheckCircle2,
+    ShoppingCart,
+    Truck,
+    Pipette,
+    BadgeCheck,
+    TrendingUp,
+    Users
+} from 'lucide-react'
 import { Statistic, MemberCategory, Media } from '@/types/payload'
 
+const ICON_MAP: Record<string, any> = {
+    Sprout,
+    Factory,
+    Globe,
+    Package,
+    ShoppingCart,
+    Truck,
+    Pipette,
+    BadgeCheck,
+    TrendingUp,
+    Users
+}
+
 export default async function HomePage() {
-  const payload = await getPayload({ config })
+  let orgRole: any = null
+  let vcPlatform: any = null
+  let stats: Statistic[] = []
+  let categories: MemberCategory[] = []
+  let partners: any[] = []
 
-  // Fetch Hero/Organization info
-  const { docs: orgRoles } = await payload.find({
-    collection: 'organization_role',
-    limit: 1,
-  })
-  const orgRole = orgRoles[0] as any
+  try {
+    const payload = await getPayload({ config })
 
-  // Fetch Value Chain Platform
-  const { docs: vcPlatforms } = await payload.find({
-    collection: 'value_chain_platform',
-    limit: 1,
-  })
-  const vcPlatform = vcPlatforms[0] as any
+    const orgRoleRes = await payload.find({
+      collection: 'organization_role',
+      limit: 1,
+    })
+    orgRole = orgRoleRes.docs[0]
 
-  // Fetch Statistics for Data Snapshot
-  const { docs: statsDocs } = await payload.find({
-    collection: 'statistics',
-    where: {
-        year: { equals: 2023 }
-    },
-    limit: 10,
-  })
-  const stats = statsDocs as unknown as Statistic[]
+    const vcPlatformRes = await payload.find({
+      collection: 'value_chain_platform',
+      limit: 1,
+    })
+    vcPlatform = vcPlatformRes.docs[0]
 
-  // Fetch Member Categories
-  const { docs: categoriesDocs } = await payload.find({
-    collection: 'member_categories',
-  })
-  const categories = categoriesDocs as unknown as MemberCategory[]
+    const statsDocs = await payload.find({
+      collection: 'statistics',
+      where: {
+          year: { equals: 2023 }
+      },
+      limit: 10,
+    })
+    stats = statsDocs.docs as unknown as Statistic[]
 
-  // Fetch Partners
-  const { docs: partnersDocs } = await payload.find({
-    collection: 'partners',
-    limit: 10,
-  })
-  const partners = partnersDocs as any[]
+    const categoriesDocs = await payload.find({
+      collection: 'member_categories',
+    })
+    categories = categoriesDocs.docs as unknown as MemberCategory[]
+
+    const partnersDocs = await payload.find({
+      collection: 'partners',
+      limit: 10,
+    })
+    partners = partnersDocs.docs
+  } catch (error) {
+    console.error('Failed to fetch home page data from Payload:', error)
+  }
 
   const heroImage = typeof orgRole?.banner_image === 'object' && orgRole.banner_image !== null
     ? (orgRole.banner_image as Media).url
@@ -84,13 +115,17 @@ export default async function HomePage() {
               </Link>
               <div className="relative group w-full sm:w-auto">
                 <button className="bg-mangogreen text-white px-8 py-4 rounded font-bold text-lg text-center flex items-center justify-center gap-2 hover:bg-mangogreen-light transition w-full">
-                  Member Directory <Icons.ChevronDown className="w-5 h-5" />
+                  Member Directory <ChevronDown className="w-5 h-5" />
                 </button>
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden text-left">
                   <Link href="/members" className="block px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition border-b border-gray-50">All Members</Link>
-                  {categories.slice(0, 8).map((cat) => (
+                  {categories.length > 0 ? categories.slice(0, 8).map((cat) => (
                     <Link key={cat.id} href={`/members?category=${cat.id}`} className="block px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition border-b border-gray-50 last:border-0">{cat.name}</Link>
-                  ))}
+                  )) : (
+                    ['Producers', 'Exporters', 'Processors'].map((c, i) => (
+                        <Link key={i} href="/members" className="block px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition border-b border-gray-50 last:border-0">{c}</Link>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -98,10 +133,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Produce Marquee */}
       <ProduceMarquee />
 
-      {/* Strategic Functions */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -109,25 +142,31 @@ export default async function HomePage() {
               <h2 className="text-3xl font-bold text-tmak-green mb-6 border-l-4 border-tmak-accent pl-6 uppercase tracking-wider">
                 Strategic Functions of T-MAK
               </h2>
-              <p className="text-lg text-slate-600 leading-relaxed mb-8">
+              <p className="text-lg text-slate-600 leading-relaxed mb-8 font-medium">
                 As the peak industry body, T-MAK works in collaboration with the Government of Kenya and international partners to ensure the sustainability, profitability, and global competitiveness of the mango sector.
               </p>
               <ul className="space-y-4">
                 {(orgRole?.strategic_functions as any[])?.map((item: any, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-slate-700">
-                    <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
-                    <span className="leading-relaxed">{item.function}</span>
+                    <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">
+                        <CheckCircle2 className="w-3 h-3" />
+                    </span>
+                    <span className="leading-relaxed font-semibold">{item.function}</span>
                   </li>
                 )) || (
                     <>
-                        <li className="flex items-start gap-3 text-slate-700">
-                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
-                            <span><strong>Policy Advocacy:</strong> Shaping the regulatory environment for favorable trade.</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-slate-700">
-                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
-                            <span><strong>Quality Assurance:</strong> Enforcing standards for domestic and export markets.</span>
-                        </li>
+                        {[
+                            { title: 'Policy Advocacy', desc: 'Shaping the regulatory environment for favorable trade.' },
+                            { title: 'Quality Assurance', desc: 'Enforcing standards for domestic and export markets.' },
+                            { title: 'Innovation', desc: 'Driving research in pest management and post-harvest tech.' }
+                        ].map((item, i) => (
+                            <li key={i} className="flex items-start gap-3 text-slate-700">
+                                <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                </span>
+                                <span className="font-medium"><strong>{item.title}:</strong> {item.desc}</span>
+                            </li>
+                        ))}
                     </>
                 )}
               </ul>
@@ -140,9 +179,9 @@ export default async function HomePage() {
                   { label: 'Export Partners', value: '120+' },
                   { label: 'Market Stability', value: '85%' }
                 ].map((stat, i) => (
-                  <div key={i} className="text-center p-6 bg-slate-50 rounded-lg group hover:bg-mangogreen transition-colors">
+                  <div key={i} className="text-center p-6 bg-slate-50 rounded-lg group hover:bg-mangogreen transition-all duration-300">
                     <div className="text-4xl font-bold text-tmak-green mb-2 group-hover:text-mangoyellow">{stat.value}</div>
-                    <div className="text-xs text-slate-500 uppercase font-semibold tracking-wider group-hover:text-white/70">{stat.label}</div>
+                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-widest group-hover:text-white/70">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -151,72 +190,92 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Value Chain Platform */}
       <section id="value-chain" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">The Value Chain Platform</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">Connecting every node of the ecosystem to maximize efficiency and value creation from farm to fork.</p>
+            <p className="text-slate-600 max-w-2xl mx-auto font-medium">Connecting every node of the ecosystem to maximize efficiency and value creation from farm to fork.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {vcPlatform?.nodes?.map((node: any, i: number) => {
-              const IconComponent = (Icons as any)[node.icon || 'Package'] || Icons.Package
+              const IconComp = ICON_MAP[node.icon] || Package
               return (
                 <div key={i} className="group p-8 border border-gray-100 rounded-2xl hover:border-tmak-accent transition duration-300 bg-gray-50 hover:bg-white hover:shadow-xl">
                   <div className="w-14 h-14 bg-tmak-green text-white rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <IconComponent className="w-8 h-8" />
+                    <IconComp className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl font-bold mb-4">{node.title}</h3>
-                  <p className="text-slate-600 mb-6 leading-relaxed">{node.description}</p>
-                  <Link href={node.link || "#"} className="text-tmak-green font-semibold inline-flex items-center hover:gap-2 transition-all">
+                  <p className="text-slate-600 mb-6 leading-relaxed text-sm font-medium">{node.description}</p>
+                  <Link href={node.link || "#"} className="text-tmak-green font-bold inline-flex items-center hover:gap-2 transition-all">
                     Learn More <span className="ml-1">→</span>
                   </Link>
                 </div>
               )
             })}
             {(!vcPlatform || !vcPlatform.nodes || vcPlatform.nodes.length === 0) && (
-              <div className="col-span-full py-10 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                Value chain nodes not defined in CMS.
-              </div>
+              <>
+                {[
+                    { title: 'Input & Production', desc: 'Access to certified seedlings and fertilizers.', icon: Sprout },
+                    { title: 'Processing & Post-Harvest', desc: 'Support for cold chain and processing.', icon: Factory },
+                    { title: 'Market Linkages', desc: 'Direct access to institutional buyers.', icon: Globe }
+                ].map((node, i) => (
+                    <div key={i} className="group p-8 border border-gray-100 rounded-2xl hover:border-tmak-accent transition duration-300 bg-gray-50 hover:bg-white hover:shadow-xl">
+                        <div className="w-14 h-14 bg-tmak-green text-white rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <node.icon className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">{node.title}</h3>
+                        <p className="text-slate-600 mb-6 leading-relaxed text-sm font-medium">{node.desc}</p>
+                        <Link href="#" className="text-tmak-green font-bold inline-flex items-center hover:gap-2 transition-all text-sm">Learn More <span className="ml-1">→</span></Link>
+                    </div>
+                ))}
+              </>
             )}
           </div>
         </div>
       </section>
 
-      {/* Membership Categories */}
       <section id="membership" className="py-24 bg-tmak-green text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Join Our Ecosystem</h2>
-            <p className="text-white/70 max-w-2xl mx-auto">Standardized categories designed to foster professional growth across the industry.</p>
+            <p className="text-white/70 max-w-2xl mx-auto font-medium">Standardized categories designed to foster professional growth across the industry.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {categories.slice(0, 3).map((cat, i) => (
+            {categories.length > 0 ? categories.slice(0, 3).map((cat, i) => (
               <div key={cat.id} className={`p-10 rounded-xl text-center border transition ${i === 1 ? 'bg-white/10 border-white/20 scale-105 shadow-2xl' : 'bg-white/5 border-white/10'}`}>
                 <h3 className="text-2xl font-bold mb-4 text-tmak-accent">{cat.name}</h3>
-                <p className="text-white/80 mb-6">
+                <p className="text-white/80 mb-6 font-medium text-sm">
                   {i === 0 ? 'Individual farmers and Co-operatives looking to certify their orchards.' : i === 1 ? 'Logistics providers and export houses seeking vetted suppliers.' : 'Retailers and food manufacturers sourcing high-quality mangoes.'}
                 </p>
                 <Link href="/cms" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
                   Apply Now
                 </Link>
               </div>
-            ))}
+            )) : (
+                ['Producers', 'Traders & Exporters', 'Institutional Consumers'].map((cat, i) => (
+                    <div key={i} className={`p-10 rounded-xl text-center border transition ${i === 1 ? 'bg-white/10 border-white/20 scale-105 shadow-2xl' : 'bg-white/5 border-white/10'}`}>
+                      <h3 className="text-2xl font-bold mb-4 text-tmak-accent">{cat}</h3>
+                      <p className="text-white/80 mb-6 text-sm font-medium">Join Kenya&apos;s leading mango industry network.</p>
+                      <Link href="/cms" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
+                        Apply Now
+                      </Link>
+                    </div>
+                ))
+            )}
           </div>
         </div>
       </section>
 
-      {/* Industry Data Snapshot */}
       <section className="py-24 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 mb-2">Industry Data Snapshot</h2>
-            <p className="text-slate-500 font-medium">Mango Production by Major County (Annual Tonnage - 2023)</p>
+            <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Mango Production by Major County (Annual Tonnage - 2023)</p>
           </div>
           <div className="bg-slate-50 p-10 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-mangoyellow/5 rounded-full -mr-16 -mt-16"></div>
             <div className="space-y-6 relative z-10">
-              {stats.filter(s => s.category === 'production').slice(0, 5).map((s, i) => (
+              {stats.filter(s => s.category === 'production').length > 0 ? stats.filter(s => s.category === 'production').slice(0, 5).map((s, i) => (
                 <div key={s.id} className="space-y-2">
                   <div className="flex justify-between text-sm font-bold text-slate-700">
                     <span>{s.label}</span>
@@ -229,24 +288,22 @@ export default async function HomePage() {
                     ></div>
                   </div>
                 </div>
-              ))}
-              {stats.filter(s => s.category === 'production').length === 0 && (
-                <div className="text-center py-10 text-gray-400 italic">No production data available for 2023.</div>
+              )) : (
+                <div className="text-center py-10 text-gray-400 italic font-medium">No production data available for 2023.</div>
               )}
             </div>
-            <div className="mt-8 pt-6 border-t border-gray-200 text-[10px] text-slate-400 italic uppercase tracking-widest">
+            <div className="mt-8 pt-6 border-t border-gray-200 text-[10px] text-slate-400 italic uppercase tracking-widest font-bold">
               *Source: T-MAK Annual Sector Report 2023. Figures rounded to nearest thousand.
             </div>
           </div>
         </div>
       </section>
 
-      {/* Strategic Partners */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-serif font-bold mb-12 uppercase tracking-widest text-slate-400 text-sm">Our Strategic Partners</h2>
+          <h2 className="text-3xl font-serif font-bold mb-12 uppercase tracking-widest text-slate-400 text-xs">Our Strategic Partners</h2>
           <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
-            {partners.map((partner) => {
+            {partners.length > 0 ? partners.map((partner) => {
                  const logoUrl = typeof partner.logo === 'object' && partner.logo !== null ? (partner.logo as Media).url : null
                  if (logoUrl) {
                      return (
@@ -256,10 +313,9 @@ export default async function HomePage() {
                      )
                  }
                  return (
-                    <div key={partner.id} className="text-2xl font-bold text-gray-400 uppercase">{partner.name}</div>
+                    <div key={partner.id} className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">{partner.name}</div>
                  )
-            })}
-            {partners.length === 0 && (
+            }) : (
                 <>
                     <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">MINISTRY OF AGRICULTURE</div>
                     <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KALRO</div>

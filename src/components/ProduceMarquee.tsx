@@ -5,12 +5,18 @@ import Image from 'next/image'
 import { GalleryItem, Media } from '@/types/payload'
 
 export default async function ProduceMarquee() {
-  const payload = await getPayload({ config })
-  const { docs } = await payload.find({
-    collection: 'produce_gallery',
-    sort: 'display_order',
-  })
-  const gallery = docs as unknown as GalleryItem[]
+  let gallery: GalleryItem[] = []
+
+  try {
+    const payload = await getPayload({ config })
+    const res = await payload.find({
+      collection: 'produce_gallery',
+      sort: 'display_order',
+    })
+    gallery = res.docs as unknown as GalleryItem[]
+  } catch (e) {
+    console.error('Failed to fetch produce gallery:', e)
+  }
 
   if (!gallery || gallery.length === 0) {
     return null
