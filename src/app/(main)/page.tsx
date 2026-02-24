@@ -88,7 +88,7 @@ export default async function HomePage() {
               <Link href="/#value-chain" className="bg-tmak-accent text-tmak-green px-8 py-4 rounded font-bold text-lg text-center hover:scale-105 transition shadow-lg w-full sm:w-auto">
                 Explore the Value Chain
               </Link>
-              <Link href="/cms" className="bg-white/10 backdrop-blur-md text-white border-2 border-white/30 px-8 py-4 rounded font-bold text-lg text-center hover:bg-white hover:text-tmak-green transition w-full sm:w-auto">
+              <Link href="/register" className="bg-white/10 backdrop-blur-md text-white border-2 border-white/30 px-8 py-4 rounded font-bold text-lg text-center hover:bg-white hover:text-tmak-green transition w-full sm:w-auto">
                 Become a Member
               </Link>
               <div className="relative group w-full sm:w-auto">
@@ -206,7 +206,7 @@ export default async function HomePage() {
                 <p className="text-white/80 mb-6">
                   {i === 0 ? 'Individual farmers and Co-operatives looking to certify their orchards.' : i === 1 ? 'Logistics providers and export houses seeking vetted suppliers.' : 'Retailers and food manufacturers sourcing high-quality mangoes.'}
                 </p>
-                <Link href="/cms" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
+                <Link href="/register" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
                   Apply Now
                 </Link>
               </div>

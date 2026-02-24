@@ -24,6 +24,14 @@ export default buildConfig({
     {
       slug: 'users',
       auth: true,
+      access: {
+        admin: ({ req: { user } }: any) => {
+          if (user && (user.role === 'super_admin' || user.role === 'tmak_admin')) {
+            return true
+          }
+          return false
+        },
+      },
       fields: [
         {
           name: 'role',

@@ -91,7 +91,7 @@ export default async function StatisticsPage({
             <h3 className="text-2xl font-bold mb-2">Need detailed custom reports?</h3>
             <p className="text-white/70">T-MAK members get exclusive access to granular data, weekly market prices, and buyer contact lists.</p>
           </div>
-          <Link href="/cms" className="bg-mangoyellow text-mangogreen px-8 py-4 rounded-full font-bold hover:scale-105 transition shadow-lg whitespace-nowrap">
+          <Link href="/register" className="bg-mangoyellow text-mangogreen px-8 py-4 rounded-full font-bold hover:scale-105 transition shadow-lg whitespace-nowrap">
             Become a Member
           </Link>
         </div>

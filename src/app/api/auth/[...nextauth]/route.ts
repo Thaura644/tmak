@@ -1,38 +1,65 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { getPayload } from 'payload'
+import config from '@/payload.config'
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        username: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { username: credentials.username },
-        });
+        try {
+          const payload = await getPayload({ config })
 
-        if (!user) return null;
+          // Use payload.login to verify credentials
+          const { user, token } = await payload.login({
+            collection: 'users',
+            data: {
+              email: credentials.username,
+              password: credentials.password,
+            },
+          })
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+          if (user) {
+            return {
+              id: user.id.toString(),
+              email: user.email,
+              name: user.email,
+              role: user.role
+            };
+          }
+        } catch (error) {
+          console.error("Auth error:", error);
+        }
 
-        if (!isPasswordValid) return null;
-
-        return { id: user.id, name: user.username };
+        return null;
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }: any) {
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: any) {
+      if (session.user) {
+        session.user.role = token.role;
+        session.user.id = token.id;
+      }
+      return session;
+    },
+  },
   pages: {
-    signIn: "/admin/login",
+    signIn: "/login",
   },
   session: {
     strategy: "jwt" as const,
