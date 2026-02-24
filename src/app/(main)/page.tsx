@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -30,7 +30,7 @@ export default async function HomePage() {
   const { docs: statsDocs } = await payload.find({
     collection: 'statistics',
     where: {
-        year: { equals: 2023 }
+      year: { equals: 2023 }
     },
     limit: 10,
   })
@@ -120,16 +120,16 @@ export default async function HomePage() {
                   </li>
                 )) || (
                     <>
-                        <li className="flex items-start gap-3 text-slate-700">
-                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
-                            <span><strong>Policy Advocacy:</strong> Shaping the regulatory environment for favorable trade.</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-slate-700">
-                            <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
-                            <span><strong>Quality Assurance:</strong> Enforcing standards for domestic and export markets.</span>
-                        </li>
+                      <li className="flex items-start gap-3 text-slate-700">
+                        <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
+                        <span><strong>Policy Advocacy:</strong> Shaping the regulatory environment for favorable trade.</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700">
+                        <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
+                        <span><strong>Quality Assurance:</strong> Enforcing standards for domestic and export markets.</span>
+                      </li>
                     </>
-                )}
+                  )}
               </ul>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl border border-gray-100">
@@ -247,25 +247,25 @@ export default async function HomePage() {
           <h2 className="text-3xl font-serif font-bold mb-12 uppercase tracking-widest text-slate-400 text-sm">Our Strategic Partners</h2>
           <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
             {partners.map((partner) => {
-                 const logoUrl = typeof partner.logo === 'object' && partner.logo !== null ? (partner.logo as Media).url : null
-                 if (logoUrl) {
-                     return (
-                        <div key={partner.id} className="relative w-40 h-20">
-                            <Image src={logoUrl} alt={partner.name} fill className="object-contain" />
-                        </div>
-                     )
-                 }
-                 return (
-                    <div key={partner.id} className="text-2xl font-bold text-gray-400 uppercase">{partner.name}</div>
-                 )
+              const logoUrl = typeof partner.logo === 'object' && partner.logo !== null ? (partner.logo as Media).url : null
+              if (logoUrl) {
+                return (
+                  <div key={partner.id} className="relative w-40 h-20">
+                    <Image src={logoUrl} alt={partner.name} fill className="object-contain" />
+                  </div>
+                )
+              }
+              return (
+                <div key={partner.id} className="text-2xl font-bold text-gray-400 uppercase">{partner.name}</div>
+              )
             })}
             {partners.length === 0 && (
-                <>
-                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">MINISTRY OF AGRICULTURE</div>
-                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KALRO</div>
-                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">USAID</div>
-                    <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KEPHIS</div>
-                </>
+              <>
+                <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">MINISTRY OF AGRICULTURE</div>
+                <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KALRO</div>
+                <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">USAID</div>
+                <div className="text-2xl font-bold text-gray-400 uppercase tracking-tighter">KEPHIS</div>
+              </>
             )}
           </div>
         </div>
