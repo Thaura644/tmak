@@ -1,4 +1,4 @@
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -52,16 +52,16 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: sqliteAdapter({
-    client: {
-      url: 'file:./payload.db',
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.PAYLOAD_DATABASE_URL || '',
     },
   }),
   onInit: async (payload) => {
     if (process.env.NODE_ENV === 'production' && process.env.PAYLOAD_SEED !== 'true') return
 
     try {
-        const categories = [
+      const categories = [
         'Producer',
         'Trader',
         'Consumer',
@@ -71,23 +71,23 @@ export default buildConfig({
         'Input Supplier',
         'Logistics Provider',
         'Financial Service Provider',
-        ]
+      ]
 
-        for (const category of categories) {
+      for (const category of categories) {
         const existing = await payload.find({
-            collection: 'member_categories',
-            where: { name: { equals: category } },
+          collection: 'member_categories',
+          where: { name: { equals: category } },
         })
 
         if (existing.docs.length === 0) {
-            await payload.create({
+          await payload.create({
             collection: 'member_categories',
             data: { name: category },
-            })
+          })
         }
-        }
+      }
     } catch (e) {
-        console.error('Seed failed during onInit, this is expected if DB is not initialized yet:', e)
+      console.error('Seed failed during onInit, this is expected if DB is not initialized yet:', e)
     }
   },
 })

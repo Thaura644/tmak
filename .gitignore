@@ -19,6 +19,7 @@
 
 # production
 /build
+payload.db
 
 # misc
 .DS_Store

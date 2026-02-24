@@ -68,3 +68,35 @@
 - Payload CMS 3.0 (Next.js native)
 - NextAuth for custom admin authentication
 - Route groups used to separate layouts: (main), (admin)
+
+### 7. PostgreSQL (Neon DB) Support for Vercel
+**Issue:** SQLite connection failed on Vercel due to local file system limitations.
+**Solution:** 
+- Switched from SQLite to PostgreSQL for both Payload CMS and Prisma.
+- Replaced `@payloadcms/db-sqlite` with `@payloadcms/db-postgres`.
+- Updated `payload.config.ts` to use `postgresAdapter` and `PAYLOAD_DATABASE_URL`.
+- Updated `prisma/schema.prisma` to use `postgresql` provider and `DATABASE_URL`.
+- Neon DB is now the primary storage engine for production deployments.
+
+### 8. Login Route Correction
+**Issue:** NextAuth redirected to `/login` (Member login) instead of `/admin/login` (Admin login).
+**Solution:** Updated `authOptions.pages.signIn` to `/admin/login` in `src/app/api/auth/[...nextauth]/route.ts`.
+
+## Current Credentials (Development/Local)
+- **Custom Admin Login**: `/admin/login` (Username: `admin`, Password: `admin123`)
+- **Member/CMS Login**: `/login` (redirects to `/cms`)
+- **Payload Admin**: `/cms/admin` (Requires initial setup via UI)
+
+## Database Setup (Vercel & Local)
+The following databases have been provisioned on Neon for this project:
+
+- **DATABASE_URL**: `postgresql://neondb_owner:npg_Wd0ODpk4QtVE@ep-empty-king-akobk7ez-pooler.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require`
+- **PAYLOAD_DATABASE_URL**: `postgresql://neondb_owner:npg_Wd0ODpk4QtVE@ep-empty-king-akobk7ez-pooler.c-3.us-west-2.aws.neon.tech/payload_db?sslmode=require`
+
+Other required environment variables:
+- `PAYLOAD_SECRET`: A secure random string
+- `NEXTAUTH_SECRET`: A secure random string
+- `NEXTAUTH_URL`: Your deployment URL (e.g. `https://tmak.vercel.app`)
+
+> [!NOTE]
+> Ensure these are added to both your local `.env` file and your Vercel Project Settings.
