@@ -15,75 +15,89 @@ export default async function MembersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
-  const payload = await getPayload({ config })
+  let members: Member[] = []
+  let categories: MemberCategory[] = []
+  let stats: Statistic[] = []
+  let totalDocs = 0
+  let totalPages = 1
+  let currentPage = 1
 
-  const page = typeof params.page === 'string' ? parseInt(params.page) : 1
-  const categoryIds = typeof params.category === 'string' ? [params.category] : Array.isArray(params.category) ? params.category : []
-  const county = typeof params.county === 'string' ? params.county : undefined
-  const search = typeof params.search === 'string' ? params.search : undefined
+  try {
+    const payload = await getPayload({ config })
 
-  const where: any = {
-    membership_status: {
-      equals: 'active',
-    },
-  }
+    const page = typeof params.page === 'string' ? parseInt(params.page) : 1
+    const categoryIds = typeof params.category === 'string' ? [params.category] : Array.isArray(params.category) ? params.category : []
+    const county = typeof params.county === 'string' ? params.county : undefined
+    const search = typeof params.search === 'string' ? params.search : undefined
 
-  if (categoryIds.length > 0) {
-    where.category = {
-      in: categoryIds,
+    const where: any = {
+      membership_status: {
+        equals: 'active',
+      },
     }
-  }
 
-  if (county && county !== 'All Counties') {
-    where.county = {
-      contains: county,
+    if (categoryIds.length > 0) {
+      where.category = {
+        in: categoryIds,
+      }
     }
-  }
 
-  if (search) {
-    where.organization_name = {
-      contains: search,
+    if (county && county !== 'All Counties') {
+      where.county = {
+        contains: county,
+      }
     }
-  }
 
-  const { docs, totalPages, page: currentPage = 1, totalDocs } = await payload.find({
-    collection: 'members',
-    where,
-    page,
-    limit: 12,
-    sort: '-year_joined',
-  })
+    if (search) {
+      where.organization_name = {
+        contains: search,
+      }
+    }
 
-  const members = docs as unknown as Member[]
+    const result = await payload.find({
+      collection: 'members',
+      where,
+      page,
+      limit: 12,
+      sort: '-year_joined',
+    })
 
-  const { docs: catDocs } = await payload.find({
-    collection: 'member_categories',
-  })
-  const categories = catDocs as unknown as MemberCategory[]
+    members = result.docs as unknown as Member[]
+    totalDocs = result.totalDocs
+    totalPages = result.totalPages
+    currentPage = result.page || 1
 
-  // Fetch stats for the dashboard
-  const { docs: statsDocs } = await payload.find({
-    collection: 'statistics',
-    where: {
+    const { docs: catDocs } = await payload.find({
+      collection: 'member_categories',
+    })
+    categories = catDocs as unknown as MemberCategory[]
+
+    // Fetch stats for the dashboard
+    const { docs: statsDocs } = await payload.find({
+      collection: 'statistics',
+      where: {
         category: { equals: 'production' },
         year: { equals: 2023 }
-    },
-    limit: 5,
-  })
-  const stats = statsDocs as unknown as Statistic[]
+      },
+      limit: 5,
+    })
+    stats = statsDocs as unknown as Statistic[]
+  } catch (error) {
+    console.error('Members page data fetch failed:', error)
+  }
 
   return (
     <main className="bg-slate-50 min-h-screen">
       <header className="bg-mangogreen text-white shadow-md sticky top-20 z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <h1 className="text-xl font-bold flex items-center gap-2">
-                <Icons.Users className="w-6 h-6 text-mangoyellow" />
-                Member Directory
-            </h1>
-            <nav className="flex space-x-6 text-sm font-medium">
-                <Link href="/statistics" className="hover:text-mangoyellow transition-colors">Market Data</Link>
-                <Link href="/resources" className="hover:text-mangoyellow transition-colors">GAP Standards</Link>
-            </nav>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Icons.Users className="w-6 h-6 text-mangoyellow" />
+            Member Directory
+          </h1>
+          <nav className="flex space-x-6 text-sm font-medium">
+            <Link href="/statistics" className="hover:text-mangoyellow transition-colors">Market Data</Link>
+            <Link href="/resources" className="hover:text-mangoyellow transition-colors">GAP Standards</Link>
+          </nav>
         </div>
       </header>
 
@@ -107,9 +121,8 @@ export default async function MembersPage({
                 return (
                   <div key={s.id} className="flex flex-col items-center flex-1">
                     <div
-                      className={`w-full rounded-t-sm relative group transition-all duration-1000 ${
-                        i === 0 ? 'bg-mangogreen' : i === 1 ? 'bg-mangogreen/90' : i === 2 ? 'bg-mangogreen/80' : i === 3 ? 'bg-mangogreen/70' : 'bg-mangogreen/60'
-                      }`}
+                      className={`w-full rounded-t-sm relative group transition-all duration-1000 ${i === 0 ? 'bg-mangogreen' : i === 1 ? 'bg-mangogreen/90' : i === 2 ? 'bg-mangogreen/80' : i === 3 ? 'bg-mangogreen/70' : 'bg-mangogreen/60'
+                        }`}
                       style={{ height: `${height}%` }}
                     >
                       <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-mangogreen text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
@@ -172,11 +185,10 @@ export default async function MembersPage({
                         </div>
                       )}
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
-                        (member.category as { name: string }).name === 'Producer' ? 'bg-green-100 text-green-800' :
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${(member.category as { name: string }).name === 'Producer' ? 'bg-green-100 text-green-800' :
                         (member.category as { name: string }).name === 'Trader' || (member.category as { name: string }).name === 'Exporter' ? 'bg-blue-100 text-blue-800' :
-                        'bg-orange-100 text-orange-800'
-                    }`}>
+                          'bg-orange-100 text-orange-800'
+                      }`}>
                       {typeof member.category === 'object' ? member.category.name : 'Member'}
                     </span>
                   </div>
@@ -190,8 +202,8 @@ export default async function MembersPage({
                       {member.verified_since ? `Verified Member since ${member.verified_since}` : `Member since ${member.year_joined || '2023'}`}
                     </span>
                     <Link
-                        href={`/members/${member.slug}`}
-                        className="bg-mangoyellow/10 text-mangogreen border border-mangogreen/20 px-4 py-1.5 rounded text-sm font-bold hover:bg-mangoyellow transition-colors"
+                      href={`/members/${member.slug}`}
+                      className="bg-mangoyellow/10 text-mangogreen border border-mangogreen/20 px-4 py-1.5 rounded text-sm font-bold hover:bg-mangoyellow transition-colors"
                     >
                       View Profile
                     </Link>
@@ -200,46 +212,45 @@ export default async function MembersPage({
               ))}
               {members.length === 0 && (
                 <div className="col-span-full py-20 text-center text-slate-400 bg-white rounded-xl border border-dashed border-slate-300">
-                    <Icons.SearchX className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                    <p>No members match your current filters.</p>
+                  <Icons.SearchX className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                  <p>No members match your current filters.</p>
                 </div>
               )}
             </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <nav className="mt-12 flex justify-center">
-                    <ul className="flex items-center space-x-2">
-                        <li>
-                            <Link
-                                href={{ query: { ...params, page: Math.max(1, (currentPage || 1) - 1).toString() } }}
-                                className="px-3 py-1 rounded border border-slate-300 text-slate-500 hover:bg-mangogreen hover:text-white transition-colors"
-                            >
-                                Prev
-                            </Link>
-                        </li>
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                            <li key={i}>
-                                <Link
-                                    href={{ query: { ...params, page: (i + 1).toString() } }}
-                                    className={`px-3 py-1 rounded ${
-                                        (currentPage || 1) === i + 1 ? 'bg-mangogreen text-white font-bold' : 'border border-slate-300 text-slate-500 hover:bg-mangogreen/10'
-                                    }`}
-                                >
-                                    {i + 1}
-                                </Link>
-                            </li>
-                        ))}
-                        <li>
-                            <Link
-                                href={{ query: { ...params, page: Math.min(totalPages, (currentPage || 1) + 1).toString() } }}
-                                className="px-3 py-1 rounded border border-slate-300 text-slate-500 hover:bg-mangogreen hover:text-white transition-colors"
-                            >
-                                Next
-                            </Link>
-                        </li>
-                    </ul>
-                </nav>
+              <nav className="mt-12 flex justify-center">
+                <ul className="flex items-center space-x-2">
+                  <li>
+                    <Link
+                      href={{ query: { ...params, page: Math.max(1, (currentPage || 1) - 1).toString() } }}
+                      className="px-3 py-1 rounded border border-slate-300 text-slate-500 hover:bg-mangogreen hover:text-white transition-colors"
+                    >
+                      Prev
+                    </Link>
+                  </li>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <li key={i}>
+                      <Link
+                        href={{ query: { ...params, page: (i + 1).toString() } }}
+                        className={`px-3 py-1 rounded ${(currentPage || 1) === i + 1 ? 'bg-mangogreen text-white font-bold' : 'border border-slate-300 text-slate-500 hover:bg-mangogreen/10'
+                          }`}
+                      >
+                        {i + 1}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link
+                      href={{ query: { ...params, page: Math.min(totalPages, (currentPage || 1) + 1).toString() } }}
+                      className="px-3 py-1 rounded border border-slate-300 text-slate-500 hover:bg-mangogreen hover:text-white transition-colors"
+                    >
+                      Next
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
             )}
           </section>
         </div>

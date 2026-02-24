@@ -12,30 +12,34 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params
-  const payload = await getPayload({ config })
+  try {
+    const { slug } = await params
+    const payload = await getPayload({ config })
 
-  const { docs } = await payload.find({
-    collection: 'members',
-    where: {
-      slug: {
-        equals: slug,
+    const { docs } = await payload.find({
+      collection: 'members',
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  })
+    })
 
-  if (!docs || docs.length === 0) return {}
+    if (!docs || docs.length === 0) return {}
 
-  const member = docs[0] as unknown as Member
+    const member = docs[0] as unknown as Member
 
-  return {
-    title: member.organization_name,
-    description: member.description?.substring(0, 160),
-    openGraph: {
-      title: `${member.organization_name} | T-MAK Member`,
+    return {
+      title: member.organization_name,
       description: member.description?.substring(0, 160),
-      images: typeof member.logo === 'object' && member.logo !== null ? [(member.logo as Media).url] : [],
-    },
+      openGraph: {
+        title: `${member.organization_name} | T-MAK Member`,
+        description: member.description?.substring(0, 160),
+        images: typeof member.logo === 'object' && member.logo !== null ? [(member.logo as Media).url] : [],
+      },
+    }
+  } catch (e) {
+    return { title: 'Member Profile' }
   }
 }
 
@@ -45,22 +49,30 @@ export default async function MemberProfilePage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const payload = await getPayload({ config })
+  let member: Member | null = null
 
-  const { docs } = await payload.find({
-    collection: 'members',
-    where: {
-      slug: {
-        equals: slug,
+  try {
+    const payload = await getPayload({ config })
+
+    const { docs } = await payload.find({
+      collection: 'members',
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-  })
+    })
 
-  if (!docs || docs.length === 0) {
-    notFound()
+    if (docs && docs.length > 0) {
+      member = docs[0] as unknown as Member
+    }
+  } catch (error) {
+    console.error('Member profile fetch failed:', error)
   }
 
-  const member = docs[0] as unknown as Member
+  if (!member) {
+    notFound()
+  }
 
   return (
     <div className="container mx-auto px-4 py-10">
