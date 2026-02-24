@@ -1,16 +1,11 @@
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Resources',
-  description: 'Export guidelines and resources for T-MAK members',
-}
+export const dynamic = 'force-dynamic'
 
 export default function ResourcesPage() {
   return (
     <div className="min-h-screen bg-white py-20">
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-4xl font-serif font-bold mb-8 text-tmak-green">Resources</h1>
-        
+
         <p className="text-lg text-gray-700 mb-8">
           Access export guidelines, regulations, and resources for Kenya&apos;s mango industry.
         </p>
