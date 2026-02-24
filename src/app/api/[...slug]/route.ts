@@ -10,16 +10,16 @@ import {
 } from '@payloadcms/next/routes'
 import config from '@/payload.config'
 
-export const GET = (req: Request, args: any) => {
+export const GET = (req: Request, args: { params: Promise<{ slug: string[] }> }) => {
     if (req.url.includes('/api/graphql')) {
-        return GRAPHQL_PLAYGROUND_GET(config)(req, args)
+        return GRAPHQL_PLAYGROUND_GET(config)(req)
     }
     return REST_GET(config)(req, args)
 }
 
-export const POST = (req: Request, args: any) => {
+export const POST = (req: Request, args: { params: Promise<{ slug: string[] }> }) => {
     if (req.url.includes('/api/graphql')) {
-        return GRAPHQL_POST(config)(req, args)
+        return GRAPHQL_POST(config)(req)
     }
     return REST_POST(config)(req, args)
 }
