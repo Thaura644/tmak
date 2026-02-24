@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic"
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,44 +9,54 @@ import * as Icons from 'lucide-react'
 import { Statistic, MemberCategory, Media } from '@/types/payload'
 
 export default async function HomePage() {
-  const payload = await getPayload({ config })
+  let orgRole: any = null
+  let vcPlatform: any = null
+  let stats: Statistic[] = []
+  let categories: MemberCategory[] = []
+  let partners: any[] = []
 
-  // Fetch Hero/Organization info
-  const { docs: orgRoles } = await payload.find({
-    collection: 'organization_role',
-    limit: 1,
-  })
-  const orgRole = orgRoles[0] as any
+  try {
+    const payload = await getPayload({ config })
 
-  // Fetch Value Chain Platform
-  const { docs: vcPlatforms } = await payload.find({
-    collection: 'value_chain_platform',
-    limit: 1,
-  })
-  const vcPlatform = vcPlatforms[0] as any
+    // Fetch Hero/Organization info
+    const { docs: orgRoles } = await payload.find({
+      collection: 'organization_role',
+      limit: 1,
+    })
+    orgRole = orgRoles[0] as any
 
-  // Fetch Statistics for Data Snapshot
-  const { docs: statsDocs } = await payload.find({
-    collection: 'statistics',
-    where: {
-      year: { equals: 2023 }
-    },
-    limit: 10,
-  })
-  const stats = statsDocs as unknown as Statistic[]
+    // Fetch Value Chain Platform
+    const { docs: vcPlatforms } = await payload.find({
+      collection: 'value_chain_platform',
+      limit: 1,
+    })
+    vcPlatform = vcPlatforms[0] as any
 
-  // Fetch Member Categories
-  const { docs: categoriesDocs } = await payload.find({
-    collection: 'member_categories',
-  })
-  const categories = categoriesDocs as unknown as MemberCategory[]
+    // Fetch Statistics for Data Snapshot
+    const { docs: statsDocs } = await payload.find({
+      collection: 'statistics',
+      where: {
+        year: { equals: 2023 }
+      },
+      limit: 10,
+    })
+    stats = statsDocs as unknown as Statistic[]
 
-  // Fetch Partners
-  const { docs: partnersDocs } = await payload.find({
-    collection: 'partners',
-    limit: 10,
-  })
-  const partners = partnersDocs as any[]
+    // Fetch Member Categories
+    const { docs: categoriesDocs } = await payload.find({
+      collection: 'member_categories',
+    })
+    categories = categoriesDocs as unknown as MemberCategory[]
+
+    // Fetch Partners
+    const { docs: partnersDocs } = await payload.find({
+      collection: 'partners',
+      limit: 10,
+    })
+    partners = partnersDocs as any[]
+  } catch (error) {
+    console.error('Database not ready during build or render:', error)
+  }
 
   const heroImage = typeof orgRole?.banner_image === 'object' && orgRole.banner_image !== null
     ? (orgRole.banner_image as Media).url
