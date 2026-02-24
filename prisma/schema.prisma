@@ -3,31 +3,89 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id       String @id @default(cuid())
-  username String @unique
-  password String
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
+  member    Member?
 }
 
 model Member {
-  id        String @id @default(cuid())
-  name      String
-  role      String
-  location  String
-  imageUrl  String
-  category  String // Producer, Trader, Consumer
-  createdAt DateTime @default(now())
+  id               String       @id @default(cuid())
+  userId           String       @unique
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationName String
+  slug             String       @unique
+  categoryId       String
+  category         MemberCategory @relation(fields: [categoryId], references: [id])
+  county           String
+  membershipStatus String       @default("PENDING")
+  verifiedSince    Int?
+  description      String?
+  phone            String?
+  website          String?
+  logoUrl          String?
+  yearJoined       Int          @default(2023)
+  createdAt        DateTime     @default(now())
+}
+
+model MemberCategory {
+  id      String   @id @default(cuid())
+  name    String   @unique
+  members Member[]
+}
+
+model Statistic {
+  id       String @id @default(cuid())
+  label    String
+  value    Float
+  year     Int
+  category String
+}
+
+model Partner {
+  id      String @id @default(cuid())
+  name    String
+  logoUrl String
+}
+
+model Produce {
+  id           String @id @default(cuid())
+  name         String
+  altText      String
+  imageUrl     String
+  caption      String?
+  displayOrder Int    @default(0)
+}
+
+model Resource {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  type        String
+  url         String
+  isComingSoon Boolean @default(false)
+}
+
+model OrganizationInfo {
+  id                 String @id @default(cuid())
+  title              String
+  description        String
+  bannerImageUrl     String
+  strategicFunctions String
 }
 
 model Advert {
-  id             String @id @default(cuid())
+  id             String   @id @default(cuid())
   title          String
   description    String
-  type           String // e.g. SPONSORED, LOGISTICS
+  type           String
   link           String
   memberDiscount String?
   createdAt      DateTime @default(now())

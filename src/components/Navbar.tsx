@@ -28,7 +28,7 @@ export function Navbar() {
             {session ? (
               <div className="flex items-center gap-4">
                 <Link
-                  href={(session.user as any).role === 'member' ? '/dashboard' : '/admin'}
+                  href={(session.user as any).role === 'MEMBER' ? '/dashboard' : '/admin'}
                   className="text-tmak-green hover:underline"
                 >
                   Dashboard

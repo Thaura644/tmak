@@ -18,12 +18,12 @@ import {
   AreaChart,
   Area,
 } from 'recharts'
-import { Statistic } from '@/types/payload'
+// import { Statistic } from '@/types/payload'
 import * as Icons from 'lucide-react'
 
 const COLORS = ['#1B4332', '#2D6A4F', '#40916C', '#52B788', '#74C69D', '#95D5B2', '#B7E4C7', '#D8F3DC']
 
-export function StatisticsCharts({ data }: { data: Statistic[] }) {
+export function StatisticsCharts({ data }: { data: any[] }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-20 rounded-2xl shadow-sm border border-slate-200 text-center text-slate-400">

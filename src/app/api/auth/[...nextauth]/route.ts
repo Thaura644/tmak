@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 export const authOptions = {
   providers: [
@@ -13,59 +13,29 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
-
         try {
-          const payload = await getPayload({ config })
-
-          // Use payload.login to verify credentials
-          const { user, token } = await payload.login({
-            collection: 'users',
-            data: {
-              email: credentials.username,
-              password: credentials.password,
-            },
-          })
-
-          if (user) {
-            return {
-              id: user.id.toString(),
-              email: user.email,
-              name: user.email,
-              role: user.role
-            };
+          const user = await prisma.user.findUnique({ where: { email: credentials.username } });
+          if (user && await bcrypt.compare(credentials.password, user.password)) {
+            return { id: user.id, email: user.email, name: user.email, role: user.role };
           }
-        } catch (error) {
-          console.error("Auth error:", error);
-        }
-
+        } catch (error) { console.error("Auth error:", error); }
         return null;
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }: any) {
-      if (user) {
-        token.role = user.role;
-        token.id = user.id;
-      }
+      if (user) { token.role = user.role; token.id = user.id; }
       return token;
     },
     async session({ session, token }: any) {
-      if (session.user) {
-        session.user.role = token.role;
-        session.user.id = token.id;
-      }
+      if (session.user) { (session.user as any).role = token.role; (session.user as any).id = token.id; }
       return session;
     },
   },
-  pages: {
-    signIn: "/login",
-  },
-  session: {
-    strategy: "jwt" as const,
-  },
+  pages: { signIn: "/login" },
+  session: { strategy: "jwt" as const },
 };
 
-const handler = NextAuth(authOptions);
-
+const handler = NextAuth(authOptions as any);
 export { handler as GET, handler as POST };

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useActionState } from 'react'
-import { registerMember } from './actions'
+import { registerMember } from '@/lib/actions'
 
 interface Category {
   id: string

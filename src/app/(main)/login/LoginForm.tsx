@@ -32,7 +32,7 @@ export default function LoginForm() {
       const response = await fetch('/api/auth/session')
       const session = await response.json()
 
-      if (session?.user?.role === 'member') {
+      if (session?.user?.role === 'MEMBER') {
         router.push('/dashboard')
       } else {
         router.push('/admin')
