@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const dynamic = "force-dynamic"
+export const dynamic = 'force-dynamic'
+
 import React from 'react'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
-import Image from 'next/image'
 import Link from 'next/link'
-import { MembersFilter } from '@/components/MembersFilter'
-import { Member, MemberCategory, Media, Statistic } from '@/types/payload'
+import Image from 'next/image'
 import * as Icons from 'lucide-react'
+import { memberService } from '@/../backend/services/memberService'
+import { statisticService } from '@/../backend/services/statisticService'
+import { MembersFilter } from '@/components/MembersFilter'
 
 export default async function MembersPage({
   searchParams,
@@ -15,73 +15,35 @@ export default async function MembersPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
-  let members: Member[] = []
-  let categories: MemberCategory[] = []
-  let stats: Statistic[] = []
+  let members: any[] = []
+  let categories: any[] = []
+  let stats: any[] = []
   let totalDocs = 0
-  let totalPages = 1
+  let totalPages = 0
   let currentPage = 1
 
   try {
-    const payload = await getPayload({ config })
-
-    const page = typeof params.page === 'string' ? parseInt(params.page) : 1
-    const categoryIds = typeof params.category === 'string' ? [params.category] : Array.isArray(params.category) ? params.category : []
+    const category = typeof params.category === 'string' ? params.category : undefined
     const county = typeof params.county === 'string' ? params.county : undefined
     const search = typeof params.search === 'string' ? params.search : undefined
+    currentPage = typeof params.page === 'string' ? parseInt(params.page) : 1
 
-    const where: any = {
-      membership_status: {
-        equals: 'active',
-      },
-    }
-
-    if (categoryIds.length > 0) {
-      where.category = {
-        in: categoryIds,
-      }
-    }
-
-    if (county && county !== 'All Counties') {
-      where.county = {
-        contains: county,
-      }
-    }
-
-    if (search) {
-      where.organization_name = {
-        contains: search,
-      }
-    }
-
-    const result = await payload.find({
-      collection: 'members',
-      where,
-      page,
+    const membersRes = await memberService.getAllMembers({
+      category,
+      county,
+      search,
+      page: currentPage,
       limit: 12,
-      sort: '-year_joined',
     })
 
-    members = result.docs as unknown as Member[]
-    totalDocs = result.totalDocs
-    totalPages = result.totalPages
-    currentPage = result.page || 1
+    members = membersRes.members
+    totalDocs = membersRes.total
+    totalPages = membersRes.totalPages
 
-    const { docs: catDocs } = await payload.find({
-      collection: 'member_categories',
-    })
-    categories = catDocs as unknown as MemberCategory[]
+    categories = await memberService.getCategories()
+    stats = await statisticService.getStatistics(2023)
+    stats = stats.filter(s => s.category === 'production').slice(0, 5)
 
-    // Fetch stats for the dashboard
-    const { docs: statsDocs } = await payload.find({
-      collection: 'statistics',
-      where: {
-        category: { equals: 'production' },
-        year: { equals: 2023 }
-      },
-      limit: 5,
-    })
-    stats = statsDocs as unknown as Statistic[]
   } catch (error) {
     console.error('Members page data fetch failed:', error)
   }
@@ -102,7 +64,6 @@ export default async function MembersPage({
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Production Statistics Dashboard */}
         <section className="mb-10 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -117,7 +78,7 @@ export default async function MembersPage({
           <div className="p-8 bg-slate-50/50">
             <div className="flex items-end justify-between h-48 max-w-4xl mx-auto gap-2 md:gap-6">
               {stats.map((s, i) => {
-                const height = Math.min(100, (s.value / 150000) * 100)
+                const height = Math.min(100, (s.value / 200000) * 100)
                 return (
                   <div key={s.id} className="flex flex-col items-center flex-1">
                     <div
@@ -141,7 +102,6 @@ export default async function MembersPage({
         </section>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
           <aside className="w-full lg:w-72 space-y-6">
             <MembersFilter categories={categories} />
             <div className="bg-mangogreen text-white p-6 rounded-xl shadow-sm">
@@ -152,19 +112,11 @@ export default async function MembersPage({
             </div>
           </aside>
 
-          {/* Member Grid */}
           <section className="flex-1">
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-slate-500 font-medium">
                 Showing <span className="text-mangogreen font-bold">{totalDocs}</span> active members
               </p>
-              <div className="flex items-center text-xs space-x-2">
-                <span className="text-slate-400">Sort by:</span>
-                <select className="bg-transparent border-none text-mangogreen font-bold focus:ring-0 cursor-pointer text-xs">
-                  <option>Recently Joined</option>
-                  <option>Name (A-Z)</option>
-                </select>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -172,9 +124,9 @@ export default async function MembersPage({
                 <article key={member.id} className="member-card bg-white border border-slate-200 rounded-xl p-5 transition-all duration-300">
                   <div className="flex items-start justify-between mb-4">
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-100 shadow-sm bg-gray-50">
-                      {typeof member.logo === 'object' && member.logo !== null ? (
+                      {member.logo?.url ? (
                         <Image
-                          src={(member.logo as Media).url}
+                          src={member.logo.url}
                           alt={member.organization_name}
                           fill
                           className="object-cover"
@@ -185,11 +137,11 @@ export default async function MembersPage({
                         </div>
                       )}
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${(member.category as { name: string }).name === 'Producer' ? 'bg-green-100 text-green-800' :
-                        (member.category as { name: string }).name === 'Trader' || (member.category as { name: string }).name === 'Exporter' ? 'bg-blue-100 text-blue-800' :
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${member.category?.name === 'Producer' ? 'bg-green-100 text-green-800' :
+                        member.category?.name === 'Trader' || member.category?.name === 'Exporter' ? 'bg-blue-100 text-blue-800' :
                           'bg-orange-100 text-orange-800'
                       }`}>
-                      {typeof member.category === 'object' ? member.category.name : 'Member'}
+                      {member.category?.name || 'Member'}
                     </span>
                   </div>
                   <h3 className="font-bold text-lg text-mangogreen mb-1 line-clamp-1">{member.organization_name}</h3>
@@ -218,7 +170,6 @@ export default async function MembersPage({
               )}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <nav className="mt-12 flex justify-center">
                 <ul className="flex items-center space-x-2">

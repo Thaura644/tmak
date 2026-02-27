@@ -1,128 +1,81 @@
-export const dynamic = "force-dynamic"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const dynamic = 'force-dynamic'
+
 import React from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
-import ProduceMarquee from '@/components/ProduceMarquee'
+import Link from 'next/link'
 import * as Icons from 'lucide-react'
-import { Statistic, MemberCategory, Media } from '@/types/payload'
+import { memberService } from '@/../backend/services/memberService'
+import { statisticService } from '@/../backend/services/statisticService'
+import { partnerService } from '@/../backend/services/partnerService'
+import { contentService } from '@/../backend/services/contentService'
 
 export default async function HomePage() {
+  let stats: any[] = []
+  let categories: any[] = []
+  let partners: any[] = []
   let orgRole: any = null
   let vcPlatform: any = null
-  let stats: Statistic[] = []
-  let categories: MemberCategory[] = []
-  let partners: any[] = []
 
   try {
-    const payload = await getPayload({ config })
-
-    // Fetch Hero/Organization info
-    const { docs: orgRoles } = await payload.find({
-      collection: 'organization_role',
-      limit: 1,
-    })
-    orgRole = orgRoles[0] as any
-
-    // Fetch Value Chain Platform
-    const { docs: vcPlatforms } = await payload.find({
-      collection: 'value_chain_platform',
-      limit: 1,
-    })
-    vcPlatform = vcPlatforms[0] as any
-
-    // Fetch Statistics for Data Snapshot
-    const { docs: statsDocs } = await payload.find({
-      collection: 'statistics',
-      where: {
-        year: { equals: 2023 }
-      },
-      limit: 10,
-    })
-    stats = statsDocs as unknown as Statistic[]
-
-    // Fetch Member Categories
-    const { docs: categoriesDocs } = await payload.find({
-      collection: 'member_categories',
-    })
-    categories = categoriesDocs as unknown as MemberCategory[]
-
-    // Fetch Partners
-    const { docs: partnersDocs } = await payload.find({
-      collection: 'partners',
-      limit: 10,
-    })
-    partners = partnersDocs as any[]
+    stats = await statisticService.getStatistics(2023)
+    categories = await memberService.getCategories()
+    partners = await partnerService.getAllPartners()
+    orgRole = await contentService.getOrganizationRole()
+    vcPlatform = await contentService.getValueChainPlatform()
   } catch (error) {
-    console.error('Database not ready during build or render:', error)
+    console.error('Home page data fetch failed:', error)
   }
 
-  const heroImage = typeof orgRole?.banner_image === 'object' && orgRole.banner_image !== null
-    ? (orgRole.banner_image as Media).url
-    : "https://lh3.googleusercontent.com/aida-public/AB6AXuCINAOCgbzbCG5B1PyrJLQcbYwzAXw90_4mQoy8J1LwFeDc1jBfRDL8pXIZvAvao8kVmTaKe23ohQi5rr1kzFMj4nn8L5h5iafa2V_MfdXnvVgWltFkjGuKx8Vr7dPn1d-PD4O3ESheNM470_5QDVpw5EtWd9_zM3-b39M0g3eRxkC3rT13jaa0V-EMdy-zUwY-vqt1DMRYfUwUDcuff4b-6qCFLYTGqdL11Oni0Wgp29qOyPB2Q4r_7JgDOSGEsl-mOCCWJ0nXQPZc"
-
   return (
-    <main>
+    <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[750px] flex items-center overflow-hidden">
+      <section className="relative h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src={heroImage}
-            alt="The Mango Association of Kenya"
+            src="/hero.png"
+            alt="Mango Farm"
             fill
-            className="object-cover"
+            className="object-cover brightness-[0.4]"
             priority
           />
-          <div className="absolute inset-0 bg-black/40"></div>
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 relative z-10 text-white">
           <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
-              {orgRole?.title || "The Mango Association of Kenya (T-MAK)"}
+            <span className="inline-block px-4 py-1.5 bg-mangoyellow text-mangogreen text-xs font-bold rounded-full mb-6 uppercase tracking-widest shadow-lg">
+              Official Industry Peak Body
+            </span>
+            <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 leading-[1.1]">
+              Advancing Kenya&apos;s <span className="text-mangoyellow">Mango</span> Global Excellence
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed font-light">
-              National coordinating authority, value chain platform, and market linkage enabler for Kenya&apos;s mango industry.
+            <p className="text-xl md:text-2xl text-white/80 mb-10 leading-relaxed font-light">
+              The The Mango Association of Kenya (T-MAK) coordinates, represents, and promotes the interests of all stakeholders in the mango value chain.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <Link href="/#value-chain" className="bg-tmak-accent text-tmak-green px-8 py-4 rounded font-bold text-lg text-center hover:scale-105 transition shadow-lg w-full sm:w-auto">
-                Explore the Value Chain
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/members" className="bg-mangoyellow text-mangogreen px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition shadow-2xl flex items-center justify-center group">
+                Explore Directory <Icons.ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/cms" className="bg-white/10 backdrop-blur-md text-white border-2 border-white/30 px-8 py-4 rounded font-bold text-lg text-center hover:bg-white hover:text-tmak-green transition w-full sm:w-auto">
-                Become a Member
+              <Link href="/about" className="bg-white/10 backdrop-blur-md border border-white/20 px-10 py-5 rounded-full font-bold text-lg hover:bg-white/20 transition flex items-center justify-center">
+                Our Mandate
               </Link>
-              <div className="relative group w-full sm:w-auto">
-                <button className="bg-mangogreen text-white px-8 py-4 rounded font-bold text-lg text-center flex items-center justify-center gap-2 hover:bg-mangogreen-light transition w-full">
-                  Member Directory <Icons.ChevronDown className="w-5 h-5" />
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 overflow-hidden">
-                  <Link href="/members" className="block px-6 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition border-b border-gray-50">All Members</Link>
-                  {categories.slice(0, 8).map((cat) => (
-                    <Link key={cat.id} href={`/members?category=${cat.id}`} className="block px-6 py-3 text-sm text-slate-600 hover:bg-slate-50 transition border-b border-gray-50 last:border-0">{cat.name}</Link>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Produce Marquee */}
-      <ProduceMarquee />
-
-      {/* Strategic Functions */}
-      <section className="py-24 bg-gray-50">
+      {/* Strategic Role Section */}
+      <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-tmak-green mb-6 border-l-4 border-tmak-accent pl-6 uppercase tracking-wider">
+              <h2 className="text-4xl font-serif font-bold text-slate-900 mb-6 leading-tight">
                 Strategic Functions of T-MAK
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-8">
                 As the peak industry body, T-MAK works in collaboration with the Government of Kenya and international partners to ensure the sustainability, profitability, and global competitiveness of the mango sector.
               </p>
               <ul className="space-y-4">
-                {(orgRole?.strategic_functions as any[])?.map((item: any, i: number) => (
+                {orgRole?.strategic_functions?.map((item: any, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-slate-700">
                     <span className="mt-1 flex-shrink-0 w-6 h-6 rounded-full bg-tmak-green text-white flex items-center justify-center text-xs shadow-sm">✓</span>
                     <span className="leading-relaxed">{item.function}</span>
@@ -185,7 +138,7 @@ export default async function HomePage() {
             })}
             {(!vcPlatform || !vcPlatform.nodes || vcPlatform.nodes.length === 0) && (
               <div className="col-span-full py-10 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                Value chain nodes not defined in CMS.
+                Value chain nodes not defined in the backend.
               </div>
             )}
           </div>
@@ -206,7 +159,7 @@ export default async function HomePage() {
                 <p className="text-white/80 mb-6">
                   {i === 0 ? 'Individual farmers and Co-operatives looking to certify their orchards.' : i === 1 ? 'Logistics providers and export houses seeking vetted suppliers.' : 'Retailers and food manufacturers sourcing high-quality mangoes.'}
                 </p>
-                <Link href="/cms" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
+                <Link href="/login" className={`w-full block py-3 rounded font-bold transition ${i === 1 ? 'bg-tmak-accent text-tmak-green' : 'border border-white/30 hover:bg-white hover:text-tmak-green'}`}>
                   Apply Now
                 </Link>
               </div>
@@ -256,7 +209,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-serif font-bold mb-12 uppercase tracking-widest text-slate-400 text-sm">Our Strategic Partners</h2>
           <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all">
             {partners.map((partner) => {
-              const logoUrl = typeof partner.logo === 'object' && partner.logo !== null ? (partner.logo as Media).url : null
+              const logoUrl = partner.logo?.url
               if (logoUrl) {
                 return (
                   <div key={partner.id} className="relative w-40 h-20">
