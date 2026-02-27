@@ -4,76 +4,115 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  const tmakAdminPassword = await bcrypt.hash('tmak456', 10);
   
+  // Create Admin Users
   await prisma.user.upsert({
-    where: { username: 'admin' },
-    update: {},
+    where: { username: 'superadmin' },
+    update: { password: adminPassword, role: 'SUPER_ADMIN' },
     create: {
-      username: 'admin',
-      password: hashedPassword,
+      username: 'superadmin',
+      password: adminPassword,
+      role: 'SUPER_ADMIN',
     },
   });
 
-  const members = [
-    {
-      name: 'Mary Wakio',
-      role: 'Small-holder Farmer',
-      location: 'Embu',
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAe33dFPETeYlU8H0bLSyKriQ3wD5ZzE55rlcGsG4GVEefQlrCFzy_ZrsvSVPuttGkTPWgOU2xMNtn1VIieog4rxsBSlxp6vgVTPgTdfaUkwoAWEKEUVOKIsWE8AfnOoCXsU0X86syDVNP8us5k_xY_PlhCTku8CZviaYUY6YjeTMV9m8Fu8OolprdUiukxntH3QrWo31tIBjomPoz2TiV8_Oos-feQYbssHNJ2iNQy1puJf4hY5IHo0slwfVRACvC7-QJb19egMuuo',
-      category: 'Producer',
+  await prisma.user.upsert({
+    where: { username: 'tmak_admin' },
+    update: { password: tmakAdminPassword, role: 'TM_ADMIN' },
+    create: {
+      username: 'tmak_admin',
+      password: tmakAdminPassword,
+      role: 'TM_ADMIN',
     },
-    {
-      name: 'Samuel Otieno',
-      role: 'Exporter',
-      location: 'Mombasa',
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDToVUwrsgd3udAN_QKs0rKtMUofXHxVOa8IEQ8Drj6g83ceryMGFb-HhQ2Giyc2VMF6xMUsAnmVbUQT7KhSfbC7BRSiapnyqWiLNodZR2KQbidGcRqbqEQZbEKj3KcGK12Uci4ZDsElzeBE1SIsgHO5fqx85868YSPUPAnFwl1oGfZfpz3QKo2QtGL476xmkdlGUG5wZ6lyfQCp_fdsHLoMb3_cDead6DTdTSDTc6CDuRe5Om6n8hxRjWEHDNLIS9uLZmqG2tKcpgo',
-      category: 'Trader',
-    },
-    {
-      name: 'Dr. Jane Kariuki',
-      role: 'Agricultural Researcher',
-      location: 'Nairobi',
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCotXU0QdnDN2XMDUgBpzIs60x9D4eAS1lNhsann-6fgGUbuWstNqcGCJXUP4E3PY0ZQxs_O1E5NkzMwC8udZgNvbBbYYK7U3yD0mmEIzwzddeMdNMCcnrTuCrcTDEh1li5B7LQ1tTvVM09-8JXidDKomWl9Wmt1X6jKlCnqMxwBefTrAGIEVQ05nrNq7CQSwD94HpWEay6vd-ZHhQq5GTNltdCAlbqffc6i2NAm1AOsGO8J99gqUbZ4PLP7KcxhRpYqrPnMNsEcOam',
-      category: 'Researcher',
-    },
+  });
+
+  // Create Member Categories
+  const categories = [
+    'Producer',
+    'Trader',
+    'Consumer',
+    'Researcher',
+    'Exporter',
+    'Processor',
+    'Input Supplier',
+    'Logistics Provider',
+    'Financial Service Provider',
   ];
 
-  for (const member of members) {
+  for (const name of categories) {
+    await prisma.memberCategory.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  // Get some category IDs for sample members
+  const producerCat = await prisma.memberCategory.findUnique({ where: { name: 'Producer' } });
+  const traderCat = await prisma.memberCategory.findUnique({ where: { name: 'Trader' } });
+  const researcherCat = await prisma.memberCategory.findUnique({ where: { name: 'Researcher' } });
+
+  // Clear existing members to avoid unique constraint errors during seed
+  await prisma.memberCertification.deleteMany();
+  await prisma.memberExportMarket.deleteMany();
+  await prisma.member.deleteMany();
+
+  if (producerCat && traderCat && researcherCat) {
     await prisma.member.create({
-      data: member,
+      data: {
+        organization_name: 'Mary Wakio Farms',
+        slug: 'mary-wakio-farms',
+        categoryId: producerCat.id,
+        county: 'Embu',
+        contact_person: 'Mary Wakio',
+        membership_status: 'active',
+        verified_since: 2021,
+        year_joined: 2020,
+      }
+    });
+
+    await prisma.member.create({
+      data: {
+        organization_name: 'Samuel Exports Ltd',
+        slug: 'samuel-exports-ltd',
+        categoryId: traderCat.id,
+        county: 'Mombasa',
+        contact_person: 'Samuel Otieno',
+        membership_status: 'active',
+        verified_since: 2019,
+        year_joined: 2018,
+      }
+    });
+
+    await prisma.member.create({
+      data: {
+        organization_name: 'Kenya Agri Research',
+        slug: 'kenya-agri-research',
+        categoryId: researcherCat.id,
+        county: 'Nairobi',
+        contact_person: 'Dr. Jane Kariuki',
+        membership_status: 'active',
+        verified_since: 2022,
+        year_joined: 2022,
+      }
     });
   }
 
-  const adverts = [
-    {
-      title: 'Fresh Harvest Fertilizer',
-      description: 'Boost your yield by 40% with our organic, mango-optimized soil nutrients.',
-      type: 'SPONSORED',
-      link: '#',
-      memberDiscount: 'Claim Member Discount',
-    },
-    {
-      title: 'T-MAK Exports',
-      description: 'Premium cold-chain solutions for international shipping.',
-      type: 'LOGISTICS',
-      link: '#',
-    },
-    {
-      title: 'Digital Agronomist Pro',
-      description: 'Smart weather and pest tracking in the palm of your hand.',
-      type: 'TECH',
-      link: '#',
-    },
-  ];
+  // Create some statistics
+  await prisma.statistic.deleteMany();
+  await prisma.statistic.createMany({
+    data: [
+      { label: 'Makueni', value: 185000, year: 2023, category: 'production' },
+      { label: 'Machakos', value: 142000, year: 2023, category: 'production' },
+      { label: 'Kilifi', value: 98000, year: 2023, category: 'production' },
+      { label: 'Kwalu', value: 76000, year: 2023, category: 'production' },
+      { label: 'Meru', value: 64000, year: 2023, category: 'production' },
+    ]
+  });
 
-  for (const advert of adverts) {
-    await prisma.advert.create({
-      data: advert,
-    });
-  }
-
-  console.log('Seed completed');
+  console.log('Seed completed successfully');
 }
 
 main()

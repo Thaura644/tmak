@@ -2,10 +2,8 @@
 export const dynamic = 'force-dynamic'
 
 import React from 'react'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { statisticService } from '@/../backend/services/statisticService'
 import { StatisticsCharts } from '@/components/StatisticsCharts'
-import { Statistic } from '@/types/payload'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 
@@ -15,34 +13,13 @@ export default async function StatisticsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
-  let stats: Statistic[] = []
+  let stats: any[] = []
   let availableYears: number[] = []
   const year = typeof params.year === 'string' ? parseInt(params.year) : 2023
 
   try {
-    const payload = await getPayload({ config })
-
-    const where: any = {}
-    if (year) {
-      where.year = {
-        equals: year,
-      }
-    }
-
-    const { docs: statsDocs } = await payload.find({
-      collection: 'statistics',
-      where,
-      limit: 100,
-    })
-    stats = statsDocs as unknown as Statistic[]
-
-    // Get available years for filter
-    const allStatsRes = await payload.find({
-      collection: 'statistics',
-      limit: 1000,
-    })
-    const allStats = allStatsRes.docs as unknown as Statistic[]
-    availableYears = Array.from(new Set(allStats.map(s => s.year))).sort((a, b) => b - a)
+    stats = await statisticService.getStatistics(year)
+    availableYears = await statisticService.getAvailableYears()
   } catch (error) {
     console.error('Statistics page data fetch failed:', error)
   }
@@ -91,7 +68,7 @@ export default async function StatisticsPage({
             <h3 className="text-2xl font-bold mb-2">Need detailed custom reports?</h3>
             <p className="text-white/70">T-MAK members get exclusive access to granular data, weekly market prices, and buyer contact lists.</p>
           </div>
-          <Link href="/cms" className="bg-mangoyellow text-mangogreen px-8 py-4 rounded-full font-bold hover:scale-105 transition shadow-lg whitespace-nowrap">
+          <Link href="/login" className="bg-mangoyellow text-mangogreen px-8 py-4 rounded-full font-bold hover:scale-105 transition shadow-lg whitespace-nowrap">
             Become a Member
           </Link>
         </div>
