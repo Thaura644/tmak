@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+  role     String @default("MEMBER") // SUPER_ADMIN, TM_ADMIN, MEMBER
+  member   Member?
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  filename  String
+  mimeType  String
+  filesize  Int
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  members          Member[]
+  produceGalleries ProduceGallery[]
+  partners         Partner[]
+  orgRoles         OrganizationRole[]
+  vcPlatforms      ValueChainPlatform[]
+}
+
+model MemberCategory {
+  id      String   @id @default(cuid())
+  name    String   @unique
+  members Member[]
+}
+
+model Member {
+  id                String   @id @default(cuid())
+  organization_name String
+  slug              String   @unique
+  categoryId        String
+  category          MemberCategory @relation(fields: [categoryId], references: [id])
+  county            String
+  contact_person    String?
+  phone             String?
+  email             String?
+  website           String?
+  description       String?
+  logoId            String?
+  logo              Media?   @relation(fields: [logoId], references: [id])
+  membership_status String   @default("inactive") // active, inactive
+  verified_since    Int?
+  year_joined       Int?
+  userId            String?  @unique
+  user              User?    @relation(fields: [userId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  certifications    MemberCertification[]
+  export_markets    MemberExportMarket[]
+}
+
+model MemberCertification {
+  id       String @id @default(cuid())
+  name     String
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model MemberExportMarket {
+  id       String @id @default(cuid())
+  market   String
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model Statistic {
+  id       String @id @default(cuid())
+  label    String
+  value    Float
+  year     Int
+  category String // production, export, membership
+}
+
+model Partner {
+  id      String  @id @default(cuid())
+  name    String
+  logoId  String?
+  logo    Media?  @relation(fields: [logoId], references: [id])
+  website String?
+}
+
+model ProduceGallery {
+  id           String @id @default(cuid())
+  imageId      String
+  image        Media  @relation(fields: [imageId], references: [id])
+  alt_text     String
+  caption      String?
+  display_order Int?
+}
+
+model OrganizationRole {
+  id            String   @id @default(cuid())
+  title         String
+  summary       String?  @db.Text
+  bannerImageId String?
+  banner_image  Media?   @relation(fields: [bannerImageId], references: [id])
+  cta_label     String?
+  cta_url       String?
+
+  strategic_functions StrategicFunction[]
+}
+
+model StrategicFunction {
+  id      String           @id @default(cuid())
+  function String
+  roleId  String
+  role    OrganizationRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+}
+
+model ValueChainPlatform {
+  id                         String   @id @default(cuid())
+  overview_text              String?  @db.Text
+  mapImageId                 String?
+  value_chain_map_image      Media?   @relation(fields: [mapImageId], references: [id])
+  export_markets_description String?  @db.Text
+  supporters_description       String?  @db.Text
+  secondary_processors_desc   String?  @db.Text
+
+  nodes                      ValueChainNode[]
+  production_data            ProductionByCounty[]
+}
+
+model ValueChainNode {
+  id          String             @id @default(cuid())
+  title       String
+  description String             @db.Text
+  icon        String?
+  link        String?
+  platformId  String
+  platform    ValueChainPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+}
+
+model ProductionByCounty {
+  id                String             @id @default(cuid())
+  county            String
+  production_volume Float
+  year              Int
+  platformId        String
+  platform          ValueChainPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+}
+
+model Advert {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  type           String // e.g. SPONSORED, LOGISTICS
+  link           String
+  memberDiscount String?
+  createdAt      DateTime @default(now())
+}
