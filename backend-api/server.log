@@ -1,0 +1,41 @@
+Server started
+prisma:info Starting a sqlite pool with 9 connections.
+prisma:query SELECT COUNT(*) FROM (SELECT `main`.`Member`.`id` FROM `main`.`Member` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:error
+Invalid `prisma_1.prisma.member.count()` invocation in
+/app/backend-api/dist/routes/members.js:21:36
+
+  18 try {
+  19     const [members, total] = await Promise.all([
+  20         prisma_1.prisma.member.findMany({ where, include: { category: true, logo: true }, skip, take, orderBy: { organization_name: 'asc' } }),
+→ 21         prisma_1.prisma.member.count(
+The table `main.Member` does not exist in the current database.
+Error in GET /members: PrismaClientKnownRequestError:
+Invalid `prisma_1.prisma.member.count()` invocation in
+/app/backend-api/dist/routes/members.js:21:36
+
+  18 try {
+  19     const [members, total] = await Promise.all([
+  20         prisma_1.prisma.member.findMany({ where, include: { category: true, logo: true }, skip, take, orderBy: { organization_name: 'asc' } }),
+→ 21         prisma_1.prisma.member.count(
+The table `main.Member` does not exist in the current database.
+    at $n.handleRequestError (/app/backend-api/node_modules/@prisma/client/runtime/library.js:121:7315)
+    at $n.handleAndLogRequestError (/app/backend-api/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/app/backend-api/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/app/backend-api/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async Promise.all (index 1)
+    at async /app/backend-api/dist/routes/members.js:19:34 {
+  code: 'P2021',
+  clientVersion: '5.22.0',
+  meta: { modelName: 'Member', table: 'main.Member' }
+}
+prisma:query SELECT `main`.`Member`.`id`, `main`.`Member`.`organization_name`, `main`.`Member`.`slug`, `main`.`Member`.`categoryId`, `main`.`Member`.`county`, `main`.`Member`.`contact_person`, `main`.`Member`.`phone`, `main`.`Member`.`email`, `main`.`Member`.`website`, `main`.`Member`.`description`, `main`.`Member`.`logoId`, `main`.`Member`.`membership_status`, `main`.`Member`.`verified_since`, `main`.`Member`.`year_joined`, `main`.`Member`.`userId`, `main`.`Member`.`createdAt`, `main`.`Member`.`updatedAt` FROM `main`.`Member` WHERE 1=1 ORDER BY `main`.`Member`.`organization_name` ASC LIMIT ? OFFSET ?
+prisma:error
+Invalid `prisma_1.prisma.member.findMany()` invocation in
+/app/backend-api/dist/routes/members.js:20:36
+
+  17     where.organization_name = { contains: search, mode: 'insensitive' };
+  18 try {
+  19     const [members, total] = await Promise.all([
+→ 20         prisma_1.prisma.member.findMany(
+The table `main.Member` does not exist in the current database.

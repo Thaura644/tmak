@@ -5,10 +5,7 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
-import { memberService } from '@/../backend/services/memberService'
-import { statisticService } from '@/../backend/services/statisticService'
-import { partnerService } from '@/../backend/services/partnerService'
-import { contentService } from '@/../backend/services/contentService'
+import { api } from '@/lib/api'
 
 export default async function HomePage() {
   let stats: any[] = []
@@ -18,11 +15,11 @@ export default async function HomePage() {
   let vcPlatform: any = null
 
   try {
-    stats = await statisticService.getStatistics(2023)
-    categories = await memberService.getCategories()
-    partners = await partnerService.getAllPartners()
-    orgRole = await contentService.getOrganizationRole()
-    vcPlatform = await contentService.getValueChainPlatform()
+    stats = await api.getStatistics(2023)
+    categories = await api.getCategories()
+    partners = await api.getPartners()
+    orgRole = await api.getOrgRole()
+    vcPlatform = await api.getValueChain()
   } catch (error) {
     console.error('Home page data fetch failed:', error)
   }
@@ -32,39 +29,57 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-mangogreen via-mangogreen/90 to-transparent z-10" />
           <Image
             src="/hero.png"
             alt="Mango Farm"
             fill
-            className="object-cover brightness-[0.4]"
+            className="object-cover"
             priority
           />
         </div>
-        <div className="container mx-auto px-4 relative z-10 text-white">
+
+        <div className="container mx-auto px-4 relative z-20">
           <div className="max-w-3xl">
-            <span className="inline-block px-4 py-1.5 bg-mangoyellow text-mangogreen text-xs font-bold rounded-full mb-6 uppercase tracking-widest shadow-lg">
-              Official Industry Peak Body
-            </span>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 leading-[1.1]">
-              Advancing Kenya&apos;s <span className="text-mangoyellow">Mango</span> Global Excellence
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-mangoyellow text-sm font-bold mb-8 animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-mangoyellow animate-pulse" />
+              PEAK INDUSTRY BODY FOR KENYA MANGO SECTOR
+            </div>
+            <h1 className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 leading-tight">
+              Cultivating <br />
+              <span className="text-mangoyellow">Excellence</span> <br />
+              in Every Mango.
             </h1>
-            <p className="text-xl md:text-2xl text-white/80 mb-10 leading-relaxed font-light">
-              The The Mango Association of Kenya (T-MAK) coordinates, represents, and promotes the interests of all stakeholders in the mango value chain.
+            <p className="text-xl text-white/80 mb-10 max-w-xl leading-relaxed">
+              T-MAK represents the entire value chain—from smallholder farmers to international exporters—ensuring Kenyan mangoes meet global standards of quality and sustainability.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/members" className="bg-mangoyellow text-mangogreen px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition shadow-2xl flex items-center justify-center group">
-                Explore Directory <Icons.ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <div className="flex flex-wrap gap-4">
+              <Link href="/members" className="px-8 py-4 bg-mangoyellow text-mangogreen rounded-full font-bold hover:scale-105 transition shadow-xl">
+                Explore Directory
               </Link>
-              <Link href="/about" className="bg-white/10 backdrop-blur-md border border-white/20 px-10 py-5 rounded-full font-bold text-lg hover:bg-white/20 transition flex items-center justify-center">
-                Our Mandate
+              <Link href="/statistics" className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full font-bold hover:bg-white/20 transition">
+                Market Intelligence
               </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-10 right-10 hidden lg:block">
+          <div className="flex gap-4">
+            <div className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+              <div className="text-3xl font-bold text-mangoyellow mb-1">200K+</div>
+              <div className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Metric Tons / Year</div>
+            </div>
+            <div className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+              <div className="text-3xl font-bold text-mangoyellow mb-1">15+</div>
+              <div className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Producing Counties</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Strategic Role Section */}
-      <section className="py-24 bg-slate-50">
+      {/* About Section */}
+      <section id="about" className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
