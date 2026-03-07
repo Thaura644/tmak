@@ -2,6 +2,22 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 const router = Router();
+
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    const member = await prisma.member.findUnique({
+      where: { userId },
+      include: { category: true, logo: true, certifications: true, export_markets: true }
+    });
+    if (!member) return res.status(404).json({ message: 'Member profile not found' });
+    res.json(member);
+  } catch (error) {
+    console.error('Error in GET /members/me:', error);
+    res.status(500).json({ message: 'Error' });
+  }
+});
+
 router.get('/', async (req, res) => {
   const { category, county, search, page = '1', limit = '12' } = req.query;
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -21,6 +37,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error', error: error instanceof Error ? error.message : String(error) });
   }
 });
+
 router.get('/categories', async (req, res) => {
   try {
     res.json(await prisma.memberCategory.findMany({ orderBy: { name: 'asc' } }));
@@ -29,6 +46,7 @@ router.get('/categories', async (req, res) => {
     res.status(500).json({ message: 'Error' });
   }
 });
+
 router.get('/counties', async (req, res) => {
   try {
     const c = await prisma.member.findMany({ select: { county: true }, distinct: ['county'] });
@@ -38,6 +56,7 @@ router.get('/counties', async (req, res) => {
     res.status(500).json({ message: 'Error' });
   }
 });
+
 router.get('/:slug', async (req, res) => {
   try {
     const m = await prisma.member.findUnique({ where: { slug: req.params.slug }, include: { category: true, logo: true, certifications: true, export_markets: true } });
@@ -48,6 +67,7 @@ router.get('/:slug', async (req, res) => {
     res.status(500).json({ message: 'Error' });
   }
 });
+
 router.post('/', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN'), async (req, res) => {
   try {
     const d = req.body;
@@ -57,6 +77,7 @@ router.post('/', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN'), a
     res.status(500).json({ message: 'Error' });
   }
 });
+
 router.put('/:id', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN'), async (req, res) => {
   try {
     const d = req.body;
@@ -66,6 +87,7 @@ router.put('/:id', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN'),
     res.status(500).json({ message: 'Error' });
   }
 });
+
 router.delete('/:id', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN'), async (req, res) => {
   try {
     await prisma.member.delete({ where: { id: req.params.id } });
@@ -75,4 +97,5 @@ router.delete('/:id', authenticateToken, authorizeRoles('SUPER_ADMIN', 'TM_ADMIN
     res.status(500).json({ message: 'Error' });
   }
 });
+
 export default router;
