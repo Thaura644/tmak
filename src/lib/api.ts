@@ -12,6 +12,16 @@ export const api = {
     if (!res.ok) throw new Error("Failed to fetch member");
     return res.json();
   },
+  async getMyProfile(token: string) {
+    const res = await fetch(`${BACKEND_URL}/api/members/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: 'no-store'
+    });
+    if (!res.ok) throw new Error("Failed to fetch profile");
+    return res.json();
+  },
   async getCategories() {
     const res = await fetch(`${BACKEND_URL}/api/members/categories`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error("Failed to fetch categories");

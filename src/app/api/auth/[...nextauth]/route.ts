@@ -2,6 +2,9 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -40,6 +43,12 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        // Generate a token for backend-api communication
+        token.backendToken = jwt.sign(
+          { id: user.id, username: user.name, role: (user as any).role },
+          JWT_SECRET,
+          { expiresIn: '1d' }
+        );
       }
       return token;
     },
@@ -47,12 +56,13 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).role = token.role;
         (session.user as any).id = token.id;
+        (session.user as any).backendToken = token.backendToken;
       }
       return session;
     },
   },
   pages: {
-    signIn: "/admin/login",
+    signIn: "/login",
   },
   session: {
     strategy: "jwt",
